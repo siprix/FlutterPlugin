@@ -1,0 +1,7 @@
+framework module siprix {
+  umbrella header "Siprix.h"
+  exclude header "SiprixCpp.h"
+  export *
+
+  module * { export * }
+}
