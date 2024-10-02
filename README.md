@@ -1,6 +1,7 @@
 # siprix_voip_sdk
 
 Siprix VoIP SDK plugin for embedding voice and video communication (based on SIP/RTP protocols) into Flutter applications.
+It contains native SIP client implementations for 5 platforms: Android, iOS, MacOS, Windows, and single unified API for all them. 
 
 Example application contains ready to use SIP VoIP Client. It has ability to:
 - Add multiple SIP accounts
@@ -97,7 +98,8 @@ void _addCall() {
 
 ## Limitations
 
-Siprix doesn't provide VoIP services. For testing app you need an account(s) credentials from a SIP service provider(s). 
+Siprix doesn't provide VoIP services, but in the same time doesn't have backend limitations and can connect to any SIP (Server) PBX or make direct calls between clients.
+For testing app you need an account(s) credentials from a SIP service provider(s). 
 Some features may be not supported by all SIP providers.
 
 Attached Siprix SDK works in trial mode and has limited call duration - it drops call after 60sec.
