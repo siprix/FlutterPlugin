@@ -52,6 +52,7 @@ class SiprixVoipSdkPlugin : public flutter::Plugin, public Siprix::ISiprixEventH
   void handleCallAccept(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleCallHold(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleCallGetHoldState(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
+  void handleCallGetSipHeader(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleCallMuteMic(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleCallMuteCam(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleCallSendDtmf(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);

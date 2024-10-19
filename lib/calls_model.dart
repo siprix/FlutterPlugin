@@ -348,6 +348,16 @@ class CallModel extends ChangeNotifier {
     }
   }
 
+  Future<String?> getSipHeader(String headerName) async {
+    try{
+      String? hdrVal = await SiprixVoipSdk().getSipHeader(myCallId, headerName);
+      _logs?.print('GetSipHeader of callId:$myCallId "$headerName" = "$hdrVal"');
+      return hdrVal;
+    } on PlatformException catch (err) {
+      _logs?.print('Can\'t get getSipHeader callId:$myCallId Err: ${err.code} ${err.message}');
+      return "";
+    }
+  }
   
   //Event handlers
   void onProceeding(String resp) {

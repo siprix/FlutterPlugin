@@ -77,6 +77,7 @@ enum ErrorCode : int32_t
     EConfRequires2Calls  = -1055,
     ECallIsHolding       = -1056,    
     ERndrAlreadyAssigned = -1057,
+    ESipHeaderNotFound   = -1058,
 
     EBadDeviceIndex      = -1070,
 
@@ -289,6 +290,9 @@ EXPORT ErrorCode Call_SetVideoWindow(ISiprixModule* module, CallId callId, void*
 EXPORT ErrorCode Call_SetVideoRenderer(ISiprixModule* module, CallId callId, IVideoRenderer* r);
 EXPORT ErrorCode Call_Renegotiate(ISiprixModule* module, CallId callId);
 EXPORT ErrorCode Call_Bye(ISiprixModule* module, CallId callId);
+
+EXPORT ErrorCode Call_GetSipHeader(ISiprixModule* module, CallId callId, 
+                                const char* hdrName, char* hdrVal, uint32_t* hdrValLen);
 
 ////////////////////////////////////////////////////////////////////////////
 //Mixer

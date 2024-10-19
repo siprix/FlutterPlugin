@@ -44,6 +44,7 @@ const char kMethodCallReject[]          = "Call_Reject";
 const char kMethodCallAccept[]          = "Call_Accept";
 const char kMethodCallHold[]            = "Call_Hold";
 const char kMethodCallGetHoldState[]    = "Call_GetHoldState";
+const char kMethodCallGetSipHeader[]    = "Call_GetSipHeader";
 const char kMethodCallMuteMic[]         = "Call_MuteMic";
 const char kMethodCallMuteCam[]         = "Call_MuteCam";
 const char kMethodCallSendDtmf[]        = "Call_SendDtmf";
@@ -647,6 +648,29 @@ FlMethodResponse* handleCallHold(FlValue* args, SiprixVoipSdkPlugin* self)
     return sendResult(err);
 }
 
+FlMethodResponse* handleCallGetSipHeader(FlValue* args, SiprixVoipSdkPlugin* self)
+{
+    FlValue* val = fl_value_lookup_string(args, kArgCallId);
+    if (val == nullptr || fl_value_get_type(val) != FL_VALUE_TYPE_INT) return badArgsResponse();
+    const Siprix::CallId callId = fl_value_get_int(val);
+
+    val = fl_value_lookup_string(args, "hdrName");
+    if (val == nullptr || fl_value_get_type(val) != FL_VALUE_TYPE_STRING) return badArgsResponse();
+    const gchar* hdrName = fl_value_get_string(val);
+
+    std::string headerVal;
+    uint32_t headerValLen = 0;
+    Siprix::Call_GetSipHeader(self->module_, callId, hdrName, nullptr, &headerValLen);
+
+    if (headerValLen > 0) {
+        headerVal.resize(headerValLen);
+        Siprix::Call_GetSipHeader(self->module_, callId, hdrName, &headerVal[0], &headerValLen);
+    }
+
+    g_autoptr(FlValue) res = fl_value_new_string(headerVal.c_str());
+    return FL_METHOD_RESPONSE(fl_method_success_response_new(res));
+}
+
 FlMethodResponse* handleCallGetHoldState(FlValue* args, SiprixVoipSdkPlugin* self)
 {
     FlValue* val = fl_value_lookup_string(args, kArgCallId);
@@ -1059,6 +1083,7 @@ static void siprix_voip_sdk_plugin_handle_method_call(
     if(strcmp(method, kMethodCallAccept)  == 0)          response = handleCallAccept(args, self); else
     if(strcmp(method, kMethodCallHold)    == 0)          response = handleCallHold(args, self); else
     if(strcmp(method, kMethodCallGetHoldState)  == 0)    response = handleCallGetHoldState(args, self); else
+    if(strcmp(method, kMethodCallGetSipHeader)  == 0)    response = handleCallGetSipHeader(args, self); else    
     if(strcmp(method, kMethodCallMuteMic) == 0)          response = handleCallMuteMic(args, self); else
     if(strcmp(method, kMethodCallMuteCam) == 0)          response = handleCallMuteCam(args, self); else
     if(strcmp(method, kMethodCallSendDtmf)== 0)          response = handleCallSendDtmf(args, self); else
