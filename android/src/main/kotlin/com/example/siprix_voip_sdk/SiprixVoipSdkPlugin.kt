@@ -735,6 +735,9 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
     val rewriteContactIp : Boolean? = args["rewriteContactIp"] as? Boolean
     if(rewriteContactIp != null) { accData.setRewriteContactIp(rewriteContactIp); }
 
+    val verifyIncomingCall : Boolean? = args["verifyIncomingCall"] as? Boolean
+    if(verifyIncomingCall != null) { accData.setVerifyIncomingCall(verifyIncomingCall); }
+
     val secureMedia : Int? = args["secureMedia"] as? Int
     if(secureMedia != null) { accData.setSecureMediaMode(AccData.SecureMediaMode.fromInt(secureMedia)); }
 

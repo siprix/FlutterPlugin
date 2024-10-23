@@ -463,6 +463,10 @@ Siprix::AccData* parseAccData(FlValue* args)
     if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_BOOL)
         Acc_SetRewriteContactIp(accData, fl_value_get_bool(val));
 
+    val = fl_value_lookup_string(args, "verifyIncomingCall");
+    if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_BOOL)
+        Acc_SetVerifyIncomingCall(accData, fl_value_get_bool(val));
+
     val = fl_value_lookup_string(args, "secureMedia");
     if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_INT)
         Acc_SetSecureMediaMode(accData, static_cast<Siprix::SecureMedia>(fl_value_get_int(val)));

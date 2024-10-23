@@ -411,7 +411,8 @@ Siprix::AccData* SiprixVoipSdkPlugin::parseAccountData(const flutter::EncodableM
 
     const bool* boolVal = std::get_if<bool>(&val.second);
     if(boolVal) {
-      if(valName->compare("rewriteContactIp") == 0) Siprix::Acc_SetRewriteContactIp(accData,   *boolVal);else
+      if(valName->compare("rewriteContactIp") == 0)   Siprix::Acc_SetRewriteContactIp(accData,   *boolVal);else
+      if(valName->compare("verifyIncomingCall") == 0) Siprix::Acc_SetVerifyIncomingCall(accData, *boolVal);else      
       if(valName->compare("tlsUseSipScheme") == 0)  Siprix::Acc_SetUseSipSchemeForTls(accData, *boolVal);else
       if(valName->compare("rtcpMuxEnabled") == 0)   Siprix::Acc_SetRtcpMuxEnabled(accData,     *boolVal);
       continue;
