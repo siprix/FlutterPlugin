@@ -105,9 +105,19 @@ private let kTo        = "to"
 //SiprixEventHandler
 class SiprixEventHandler : NSObject, SiprixEventDelegate {
     
-    var _channel : FlutterMethodChannel
+    private var _channel : FlutterMethodChannel
+    private let ringer : Ringer?
     init(withChannel channel:FlutterMethodChannel) {
         self._channel      = channel
+        
+        //Ringer (create only when CallKit disabled)
+        ringer = Ringer()
+    }
+    
+    public func setRingTonePath(_ path : String) {
+        DispatchQueue.main.async {
+            self.ringer?.setRingTonePath(path)
+        }
     }
     
     //////////////////////////////////////////////////////////////////////////
@@ -145,7 +155,11 @@ class SiprixEventHandler : NSObject, SiprixEventDelegate {
         _channel.invokeMethod(kOnPlayerState, arguments: argsMap)
     }
     
-    public func onRingerState(_ started: Bool) {    
+    public func onRingerState(_ started: Bool) {
+        DispatchQueue.main.async {
+            if(started) { self.ringer?.play() }
+            else        { self.ringer?.stop() }
+        }
     }
 
     public func onCallProceeding(_ callId: Int, response:String){
@@ -217,6 +231,67 @@ class SiprixEventHandler : NSObject, SiprixEventDelegate {
     }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///Ringer
+
+class Ringer {
+    private var player: AVAudioPlayer?
+    private var ringtonePath: String = ""
+    
+    public func setRingTonePath(_ path : String) {
+        ringtonePath = path
+    }
+
+    func unInit() {
+        if (player != nil)&&(player!.isPlaying) {
+            player!.stop()
+        }
+    }
+
+    private func enableSpeaker(_ enabled: Bool) {
+        #if os(iOS)
+        let session = AVAudioSession.sharedInstance()
+        var options = session.categoryOptions
+
+        if enabled {
+            options.insert(AVAudioSession.CategoryOptions.defaultToSpeaker)
+        } else {
+            options.remove(AVAudioSession.CategoryOptions.defaultToSpeaker)
+        }
+        do {
+            try session.setCategory(AVAudioSession.Category.playAndRecord, options: options)
+        } catch {
+            print("Can't start ringer: error \(error)")
+        }
+        #endif
+    }
+
+    @discardableResult
+    func play() -> Bool {
+        if player == nil {
+            let url = URL(fileURLWithPath:ringtonePath)
+            player = try? AVAudioPlayer(contentsOf: url)
+        }
+        if player != nil {
+            player?.numberOfLoops = -1
+            enableSpeaker(true)
+            player?.play()
+            return true
+        }
+        return false
+    }
+
+    @discardableResult
+    func stop() -> Bool {
+        if (player != nil) && player!.isPlaying {
+            player?.stop()
+            enableSpeaker(false)
+        }
+        return true
+    }
+    
+}//Ringer
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //FlutterVideoRenderer
@@ -346,19 +421,17 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
     var _renderers = [Int64 : FlutterVideoRenderer]()
     var _initialized = false
 
-    init(withChannel channel:FlutterMethodChannel,
-         textureRegistry:FlutterTextureRegistry, binaryMessenger:FlutterBinaryMessenger) {
+    init(withChannel channel:FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
         self._siprixModule = SiprixModule()
         self._eventHandler = SiprixEventHandler(withChannel:channel)
-        self._textureRegistry = textureRegistry
-        self._binMessenger = binaryMessenger
+        self._textureRegistry = registrar.textures()
+        self._binMessenger = registrar.messenger()
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: kChannelName, binaryMessenger: registrar.messenger())
         
-        let instance = SiprixVoipSdkPlugin(withChannel:channel, textureRegistry:registrar.textures(),
-                                         binaryMessenger:registrar.messenger())
+        let instance = SiprixVoipSdkPlugin(withChannel:channel, registrar:registrar)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
@@ -564,6 +637,7 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
     func handleAccountAdd(_ args : ArgsMap, result: @escaping FlutterResult) {
         let accData = parseAccData(args)
         let err = _siprixModule.accountAdd(accData)
+        setRingtonePath(err, assetPath:accData.ringTonePath)
         if(err == kErrorCodeEOK){
             result(accData.myAccId)
         }else{
@@ -577,6 +651,7 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
 
         if(accId != nil) {
             let err = _siprixModule.accountUpdate(accData, accId:Int32(accId!))
+            setRingtonePath(err, assetPath:accData.ringTonePath)
             sendResult(err, result:result)
         }else{
             sendBadArguments(result:result)
@@ -1074,6 +1149,12 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
     
     func sendBadArguments(result: @escaping FlutterResult){
         result(FlutterError(code: "-", message: kBadArgumentsError, details: nil))
+    }
+    
+    func setRingtonePath(_ err : Int32, assetPath: String?) {
+        if (err != kErrorCodeEOK) && (assetPath != nil) {
+            _eventHandler.setRingTonePath(assetPath!);
+        }
     }
     
 }//SiprixVoipSdkPlugin

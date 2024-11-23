@@ -56,7 +56,7 @@ class MyApp extends StatefulWidget {
   }
 
   static Future<String> writeAssetAndGetFilePath(String assetsFileName) async {
-    Directory tempDir = await getTemporaryDirectory();
+    Directory tempDir = Platform.isIOS ? await getApplicationDocumentsDirectory() : await getTemporaryDirectory();
     var dirSeparator = Platform.isWindows ? '\\' : '/';
     var filePath = '${tempDir.path}$dirSeparator$assetsFileName';
     var file = File(filePath);
