@@ -48,25 +48,33 @@ class _HomePageState extends State<HomePage> {
               child:IconButton(icon: const Icon(Icons.settings), onPressed:_onShowSettings)),
           ]
         ),
-        body: PageView(controller: _pageController, children: const [
-          AccountsListPage(),
-          CallsListPage(),
-          SubscrListPage(),
-          LogsPage()
-        ]),
+        body: PageView(controller: _pageController, 
+          physics: const NeverScrollableScrollPhysics(), 
+          children: const [
+            AccountsListPage(),
+            CallsListPage(),
+            SubscrListPage(),
+            LogsPage()
+          ]),
         bottomSheet: _networkLostIndicator(),
         bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.widgets), label: 'Accounts'),
-            BottomNavigationBarItem(icon: Icon(Icons.phone_in_talk),label: 'Calls'),
-            BottomNavigationBarItem(icon: Icon(Icons.hub), label: 'BLF'),
-            BottomNavigationBarItem(icon: Icon(Icons.text_snippet), label: 'Logs'),
+          items: <BottomNavigationBarItem>[
+            const BottomNavigationBarItem(icon: Icon(Icons.widgets), label: 'Accounts'),
+                  BottomNavigationBarItem(icon: _callsTabIcon(), label: 'Calls'),
+            const BottomNavigationBarItem(icon: Icon(Icons.hub), label: 'BLF'),
+            const BottomNavigationBarItem(icon: Icon(Icons.text_snippet), label: 'Logs'),
           ],
           currentIndex: _selectedPageIndex,
           type: BottomNavigationBarType.fixed,
           onTap: _onTabTapped,
         )
      );
+  }
+
+  Widget _callsTabIcon() {
+    final calls = context.watch<CallsModel>();
+    const icon = Icon(Icons.phone_in_talk);
+    return calls.isEmpty ? icon : Badge(label: Text('${calls.length}'), child:icon);
   }
 
   Widget? _networkLostIndicator() {
