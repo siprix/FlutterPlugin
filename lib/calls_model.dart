@@ -472,6 +472,7 @@ class CallsModel extends ChangeNotifier {
       _callItems.add(newCall);
       _cdrs?.add(newCall);
       _postResolveContactName(newCall);
+      _logs?.print('Added new call $callId');
 
       if(_switchedCallId == kEmptyCallId) {
          _switchedCallId = callId;
@@ -573,6 +574,7 @@ class CallsModel extends ChangeNotifier {
       _cdrs?.setTerminated(callId, statusCode, _callItems[index].displName, _callItems[index].durationStr);
 
       _callItems.removeAt(index);
+      _logs?.print('Removed call: $callId');
 
       if(_confModeStarted && !hasConnectedFewCalls()) {
         _confModeStarted = false;
