@@ -39,6 +39,7 @@ const char kMethodAccountUpdate[]       = "Account_Update";
 const char kMethodAccountRegister[]     = "Account_Register";
 const char kMethodAccountUnregister[]   = "Account_Unregister";
 const char kMethodAccountDelete[]       = "Account_Delete";
+const char kMethodAccountGenInstId[]    = "Account_GenInstId";
 
 const char kMethodCallInvite[]          = "Call_Invite";
 const char kMethodCallReject[]          = "Call_Reject";
@@ -600,6 +601,14 @@ FlMethodResponse* handleAccountDelete(FlValue* args, SiprixVoipSdkPlugin* self)
     return sendResult(err);
 }
 
+FlMethodResponse* handleAccountGenInstId(FlValue* args, SiprixVoipSdkPlugin* self)
+{
+    const gchar* instId = Siprix::Acc_GenerateInstanceId();
+    g_autoptr(FlValue) res = fl_value_new_string(instId);
+    return FL_METHOD_RESPONSE(fl_method_success_response_new(res));
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //Siprix Calls methods implementation
 
@@ -1159,6 +1168,7 @@ static void siprix_voip_sdk_plugin_handle_method_call(
     if(strcmp(method, kMethodAccountRegister)  == 0)     response = handleAccountRegister(args, self); else
     if(strcmp(method, kMethodAccountUnregister)== 0)     response = handleAccountUnregister(args, self); else
     if(strcmp(method, kMethodAccountDelete) == 0)        response = handleAccountDelete(args, self); else
+    if(strcmp(method, kMethodAccountGenInstId) == 0)     response = handleAccountGenInstId(args, self); else
     
     if(strcmp(method, kMethodCallInvite)  == 0)          response = handleCallInvite(args, self); else
     if(strcmp(method, kMethodCallReject)  == 0)          response = handleCallReject(args, self); else

@@ -47,6 +47,7 @@ class SiprixVoipSdkPlugin : public flutter::Plugin, public Siprix::ISiprixEventH
   void handleAccountRegister(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleAccountUnregister(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleAccountDelete(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
+  void handleAccountGenInstId(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   
   void handleCallInvite(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleCallReject(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);

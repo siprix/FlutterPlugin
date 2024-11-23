@@ -394,6 +394,7 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kMethodAccountRegister   = 'Account_Register';
   static const String _kMethodAccountUnregister = 'Account_Unregister';
   static const String _kMethodAccountDelete     = 'Account_Delete';
+  static const String _kMethodAccountGenInstId  = 'Account_GenInstId';
   
   static const String _kMethodCallInvite          = 'Call_Invite';
   static const String _kMethodCallReject          = 'Call_Reject';
@@ -564,6 +565,10 @@ class SiprixVoipSdk extends PlatformInterface
   Future<void> registerAccount(int accId, int expireTime) {
     return _methodChannel.invokeMethod<void>(_kMethodAccountRegister, 
       {_kArgAccId:accId, _kArgExpireTime:expireTime} );
+  }
+
+  Future<String?> genAccInstId() {
+    return _methodChannel.invokeMethod<String>(_kMethodAccountGenInstId, {});
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////

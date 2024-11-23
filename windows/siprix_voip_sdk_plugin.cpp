@@ -29,12 +29,13 @@ const char kMethodModuleUnInitialize[]  = "Module_UnInitialize";
 const char kMethodModuleHomeFolder[]    = "Module_HomeFolder";
 const char kMethodModuleVersionCode[]   = "Module_VersionCode";
 const char kMethodModuleVersion[]       = "Module_Version";
-                                        
+
 const char kMethodAccountAdd[]          = "Account_Add";
 const char kMethodAccountUpdate[]       = "Account_Update";
 const char kMethodAccountRegister[]     = "Account_Register";
 const char kMethodAccountUnregister[]   = "Account_Unregister";
 const char kMethodAccountDelete[]       = "Account_Delete";
+const char kMethodAccountGenInstId[]    = "Account_GenInstId";
 
 const char kMethodCallInvite[]          = "Call_Invite";
 const char kMethodCallReject[]          = "Call_Reject";
@@ -177,6 +178,7 @@ void SiprixVoipSdkPlugin::buildHandlersTable()
      handlers_[kMethodAccountRegister]      = std::bind(&SiprixVoipSdkPlugin::handleAccountRegister,    this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodAccountUnregister]    = std::bind(&SiprixVoipSdkPlugin::handleAccountUnregister,  this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodAccountDelete]        = std::bind(&SiprixVoipSdkPlugin::handleAccountDelete,      this, std::placeholders::_1, std::placeholders::_2);
+     handlers_[kMethodAccountGenInstId]     = std::bind(&SiprixVoipSdkPlugin::handleAccountGenInstId,   this, std::placeholders::_1, std::placeholders::_2);
 
      handlers_[kMethodCallInvite]           = std::bind(&SiprixVoipSdkPlugin::handleCallInvite,         this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodCallReject]           = std::bind(&SiprixVoipSdkPlugin::handleCallReject,         this, std::placeholders::_1, std::placeholders::_2);
@@ -530,6 +532,12 @@ void SiprixVoipSdkPlugin::handleAccountDelete(const flutter::EncodableMap& argsM
 
     const Siprix::ErrorCode err = Siprix::Account_Delete(module_, accId);
     sendResult(err, result);
+}
+
+void SiprixVoipSdkPlugin::handleAccountGenInstId(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)
+{
+    std::string instId = Siprix::Acc_GenerateInstanceId();
+    result->Success(flutter::EncodableValue(instId));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

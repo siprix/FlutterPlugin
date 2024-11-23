@@ -66,6 +66,7 @@ const val kMethodAccountUpdate        = "Account_Update"
 const val kMethodAccountRegister      = "Account_Register"
 const val kMethodAccountUnregister    = "Account_Unregister"
 const val kMethodAccountDelete        = "Account_Delete"
+const val kMethodAccountGenInstId     = "Account_GenInstId";
 
 const val kMethodCallInvite           = "Call_Invite"
 const val kMethodCallReject           = "Call_Reject"
@@ -625,6 +626,7 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
       kMethodAccountRegister    ->  handleAccountRegister(args, result)
       kMethodAccountUnregister  ->  handleAccountUnregister(args, result)
       kMethodAccountDelete      ->  handleAccountDelete(args, result)
+      kMethodAccountGenInstId   ->  handleAccountGenInstId(args, result)
 
       kMethodCallInvite        ->   handleCallInvite(args, result)
       kMethodCallReject        ->   handleCallReject(args, result)
@@ -892,6 +894,10 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
     }else{
       sendBadArguments(result)
     }
+  }
+
+  private fun handleAccountGenInstId(args : HashMap<String, Any?>, result: MethodChannel.Result) {
+    result.success(core!!.accountGenInstId())
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////

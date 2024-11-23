@@ -471,6 +471,10 @@ class AccountsModel extends ChangeNotifier implements IAccountsModel {
     }
   }
 
+  Future<String?> genAccInstId() {
+    return SiprixVoipSdk().genAccInstId();
+  }
+
   void _raiseSaveChanges() {    
     if(onSaveChanges != null) {
       Future.delayed(Duration.zero, () {
