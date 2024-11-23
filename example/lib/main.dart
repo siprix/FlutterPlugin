@@ -60,7 +60,9 @@ class MyApp extends StatefulWidget {
     var filePath = '$homeFolder$assetsFileName';
     
     var file = File(filePath);
-    if (file.existsSync()) return filePath;
+    var exists = file.existsSync();
+    debugPrint("writeAsset: '$filePath' exists:$exists");
+    if (exists) return filePath;
 
     final byteData = await rootBundle.load('assets/$assetsFileName');
     await file.create(recursive: true);
