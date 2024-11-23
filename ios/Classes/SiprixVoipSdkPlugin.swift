@@ -1162,8 +1162,22 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
     }
     
     func setRingtonePath(_ err : Int32, assetPath: String?) {
-        if (err != kErrorCodeEOK) && (assetPath != nil) {
-            _eventHandler.setRingTonePath(assetPath!);
+        if (err != kErrorCodeEOK) || (assetPath == nil) {
+            return;
+        }
+
+        let exists = (FileManager.default.fileExists(atPath:assetPath!))
+        if(exists) {
+            print("Ringtone path: '\(assetPath!)' - exists")
+            _eventHandler.setRingTonePath(assetPath!)
+            return;
+        }
+
+        let index = assetPath!.lastIndex(of: "/")
+        if(index != nil) {
+            let updatedPath = _siprixModule.homeFolder() + assetPath!.suffix(from: index!).dropFirst()
+            print("Ringtone path updated: '\(updatedPath)'")
+            _eventHandler.setRingTonePath(updatedPath)
         }
     }
     
