@@ -13,7 +13,9 @@ import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.IBinder
-import android.util.Log;
+import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -410,15 +412,14 @@ class FlutterRendererAdapter(texturesRegistry: TextureRegistry,
     textureEntry.release()
   }
 
-  override fun onListen(o: Any, sink: EventSink) {
-    eventSink = sink//AnyThreadSink(sink)
+  override fun onListen(o: Any?, sink: EventSink?) {
+    eventSink = if(sink != null) AnyThreadSink(sink) else null
   }
 
-  override fun onCancel(o: Any) {
+  override fun onCancel(o: Any?) {
     eventSink = null
   }
 
-  //private fun createRendererEventsListener() {
   class RendererEventsListener(private val adapter: FlutterRendererAdapter) : RendererCommon.RendererEvents {
     private var _rotation = -1
     private var _width = 0
@@ -451,6 +452,26 @@ class FlutterRendererAdapter(texturesRegistry: TextureRegistry,
     override fun onFirstFrameRendered() {
     }
   }//RendererEventsListener
+
+  class AnyThreadSink(private val eventSink: EventSink) : EventSink {
+    private val handler: Handler = Handler(Looper.getMainLooper())
+    override fun success(o: Any) {
+      post { eventSink.success(o) }
+    }
+    override fun error(s: String, s1: String, o: Any) {
+      post { eventSink.error(s, s1, o) }
+    }
+    override fun endOfStream() {
+      post { eventSink.endOfStream() }
+    }
+    private fun post(r: Runnable) {
+      if (Looper.getMainLooper() == Looper.myLooper()) {
+        r.run()
+      } else {
+        handler.post(r)
+      }
+    }
+  }
 
 }//FlutterVideoRenderer
 
