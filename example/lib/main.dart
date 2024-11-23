@@ -69,7 +69,8 @@ class MyApp extends StatefulWidget {
   }
 
   static Future<String> getRecFilePath(String assetsFileName) async {
-    Directory tempDir = await getTemporaryDirectory();
+    Directory? tempDir = Platform.isAndroid ? await getExternalStorageDirectory() : await getTemporaryDirectory();
+    tempDir ??= await getApplicationDocumentsDirectory();
     var dirSeparator = Platform.isWindows ? '\\' : '/';
     var filePath = '${tempDir.path}$dirSeparator$assetsFileName';
     return filePath;
@@ -107,8 +108,8 @@ class _MyAppState extends State<MyApp> {
   void _initializeSiprix(LogsModel? logsModel) async {
     InitData iniData = InitData();
     iniData.license  = "...license-credentials...";
-    iniData.logLevelFile = LogLevel.none;
-    iniData.logLevelIde = LogLevel.info;
+    iniData.logLevelFile = LogLevel.debug;
+    iniData.logLevelIde = LogLevel.debug;
     //iniData.singleCallMode = false;
     //iniData.tlsVerifyServer = false;
     SiprixVoipSdk().initialize(iniData, logsModel);
