@@ -351,6 +351,7 @@ class SiprixVoipSdk extends PlatformInterface
   
   static const String _kMethodModuleInitialize  = 'Module_Initialize';
   static const String _kMethodModuleUnInitialize= 'Module_UnInitialize';
+  static const String _kMethodModuleHomeFolder  = 'Module_HomeFolder';
   static const String _kMethodModuleVersionCode = 'Module_VersionCode';
   static const String _kMethodModuleVersion     = 'Module_Version';
 
@@ -480,6 +481,10 @@ class SiprixVoipSdk extends PlatformInterface
     } on PlatformException catch (err) {
       logsModel?.print('Can\'t uninitilize Siprix module Err: ${err.code} ${err.message}');
     }
+  }
+
+  Future<String?> homeFolder() async {
+    return _methodChannel.invokeMethod<String>(_kMethodModuleHomeFolder, {});
   }
 
   Future<String?> version() async {

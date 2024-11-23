@@ -13,6 +13,7 @@ import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.IBinder
+import android.util.Log;
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -53,6 +54,7 @@ const val kChannelName                = "siprix_voip_sdk"
 
 const val kMethodModuleInitialize     = "Module_Initialize"
 const val kMethodModuleUnInitialize   = "Module_UnInitialize"
+const val kMethodModuleHomeFolder     = "Module_HomeFolder";
 const val kMethodModuleVersionCode    = "Module_VersionCode"
 const val kMethodModuleVersion        = "Module_Version"
 
@@ -462,12 +464,12 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
   private lateinit var channel : MethodChannel
 
   private lateinit var eventListener : EventListener
-  private lateinit var activity: Activity
   private lateinit var appContext : Context
 
   private lateinit var messenger: BinaryMessenger
   private lateinit var textures: TextureRegistry
 
+  private var activity: Activity? = null
   private var core : SiprixCore? = null
   private var bgService: CallNotifService? = null
   private var serviceBound = false
@@ -504,14 +506,17 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    Log.i("siprix", "onAttachedToActivity")
     activity = binding.activity
     binding.addOnNewIntentListener(this)
 
-    setActivityFlags(activity)
+    if(activity!=null) {
+      setActivityFlags(activity!!)
 
-    activity.bindService(Intent(activity, CallNotifService::class.java),
-      serviceConnection, Context.BIND_AUTO_CREATE
-    )
+      activity!!.bindService(Intent(activity!!, CallNotifService::class.java),
+        serviceConnection, Context.BIND_AUTO_CREATE
+      )
+    }
 
     hasMicPermission()
     hasCamPermission()
@@ -519,20 +524,21 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
-    TODO("Not yet implemented")
+    Log.i("siprix", "onDetachedFromActivityForConfigChanges")
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     activity = binding.activity
-    TODO("Not yet implemented")
+    Log.i("siprix", "onReattachedToActivityForConfigChanges")
   }
 
   override fun onDetachedFromActivity() {
+    Log.i("siprix", "onDetachedFromActivity")
     if (serviceBound) {
       core?.setModelListener(null)
       core = null
 
-      activity.unbindService(serviceConnection)
+      activity?.unbindService(serviceConnection)
       serviceBound = false
     }
   }
@@ -542,11 +548,13 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
       // Service is running in our own process we can directly access it.
       val binder: CallNotifService.LocalBinder = service as CallNotifService.LocalBinder
       bgService = binder.service
-      bgService?.setActivityClassName(activity.javaClass.name) //!!!
       serviceBound = true
+      if(activity!=null) {
+        bgService?.setActivityClassName(activity!!.javaClass.name) //!!!
 
-      raiseIncomingCallEvent(activity.intent)
-      bgService?.handleIncomingCallIntent(activity.intent)
+        raiseIncomingCallEvent(activity!!.intent)
+        bgService?.handleIncomingCallIntent(activity!!.intent)
+      }
     }
 
     // Called when the connection with the service disconnects unexpectedly.
@@ -572,6 +580,7 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
       //"getPlatformVersion" ->    {  result.success("Android ${android.os.Build.VERSION.RELEASE}")  }
       kMethodModuleInitialize   ->  handleModuleInitialize(args, result)
       kMethodModuleUnInitialize ->  handleModuleUnInitialize(args, result)
+      kMethodModuleHomeFolder   ->  handleModuleHomeFolder(args, result)
       kMethodModuleVersionCode  ->  handleModuleVersionCode(args, result)
       kMethodModuleVersion      ->  handleModuleVersion(args, result)
 
@@ -667,6 +676,12 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
     val err = core!!.unInitialize()
     sendResult(err, result)
   }
+  
+  @Suppress("UNUSED_PARAMETER")
+  private fun handleModuleHomeFolder(args : HashMap<String, Any?>, result: MethodChannel.Result) {
+    val path : String = core!!.homeFolder
+    result.success(path)
+  }
 
   @Suppress("UNUSED_PARAMETER")
   private fun handleModuleVersionCode(args : HashMap<String, Any?>, result: MethodChannel.Result) {
@@ -740,6 +755,9 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
 
     val verifyIncomingCall : Boolean? = args["verifyIncomingCall"] as? Boolean
     if(verifyIncomingCall != null) { accData.setVerifyIncomingCall(verifyIncomingCall); }
+
+    val forceSipProxy : Boolean? = args["forceSipProxy"] as? Boolean
+    if(forceSipProxy != null) { accData.setForceSipProxy(forceSipProxy); }
 
     val secureMedia : Int? = args["secureMedia"] as? Int
     if(secureMedia != null) { accData.setSecureMediaMode(AccData.SecureMediaMode.fromInt(secureMedia)); }
@@ -1268,13 +1286,13 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
   }
 
   private fun hasPermission(permission: String): Boolean {
-    if (ContextCompat.checkSelfPermission(
-        activity, permission) == PackageManager.PERMISSION_GRANTED
+    if ((activity == null) || ContextCompat.checkSelfPermission(
+        activity!!, permission) == PackageManager.PERMISSION_GRANTED
     ) {
       return true
     }
     val requestCode = 1
-    ActivityCompat.requestPermissions(activity, arrayOf(permission),
+    ActivityCompat.requestPermissions(activity!!, arrayOf(permission),
       requestCode
     )
     return false

@@ -30,6 +30,7 @@ const char kChannelName[]               = "siprix_voip_sdk";
 
 const char kMethodModuleInitialize[]    = "Module_Initialize";
 const char kMethodModuleUnInitialize[]  = "Module_UnInitialize";
+const char kMethodModuleHomeFolder[]    = "Module_HomeFolder";
 const char kMethodModuleVersionCode[]   = "Module_VersionCode";
 const char kMethodModuleVersion[]       = "Module_Version";
                                       
@@ -374,6 +375,13 @@ FlMethodResponse* handleModuleUnInitialize(FlValue* args, SiprixVoipSdkPlugin* s
     return sendResult(err);
 }
 
+FlMethodResponse* handleModuleHomeFolder(FlValue* args, SiprixVoipSdkPlugin* self)
+{
+    const gchar* path = Siprix::Module_HomeFolder(self->module_);
+    g_autoptr(FlValue) res = fl_value_new_string(path);
+    return FL_METHOD_RESPONSE(fl_method_success_response_new(res));
+}
+
 FlMethodResponse* handleModuleVersionCode(FlValue* args, SiprixVoipSdkPlugin* self)
 {
     const int32_t versionCode = Siprix::Module_VersionCode(self->module_);    
@@ -466,6 +474,10 @@ Siprix::AccData* parseAccData(FlValue* args)
     val = fl_value_lookup_string(args, "verifyIncomingCall");
     if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_BOOL)
         Acc_SetVerifyIncomingCall(accData, fl_value_get_bool(val));
+
+    val = fl_value_lookup_string(args, "forceSipProxy");
+    if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_BOOL)
+        Acc_SetForceSipProxy(accData, fl_value_get_bool(val));
 
     val = fl_value_lookup_string(args, "secureMedia");
     if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_INT)
@@ -1073,6 +1085,7 @@ static void siprix_voip_sdk_plugin_handle_method_call(
   if(self->module_) {
     if(strcmp(method, kMethodModuleInitialize)  == 0)    response = handleModuleInitialize(args, self);else
     if(strcmp(method, kMethodModuleUnInitialize)== 0)    response = handleModuleUnInitialize(args, self); else
+    if(strcmp(method, kMethodModuleHomeFolder)  == 0)    response = handleModuleHomeFolder(args, self); else
     if(strcmp(method, kMethodModuleVersionCode) == 0)    response = handleModuleVersionCode(args, self); else
     if(strcmp(method, kMethodModuleVersion)     == 0)    response = handleModuleVersion(args, self); else
                                                         

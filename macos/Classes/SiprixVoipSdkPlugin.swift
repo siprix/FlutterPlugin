@@ -12,6 +12,7 @@ private let kChannelName                = "siprix_voip_sdk"
 
 private let kMethodModuleInitialize     = "Module_Initialize"
 private let kMethodModuleUnInitialize   = "Module_UnInitialize"
+private let kMethodModuleHomeFolder     = "Module_HomeFolder"
 private let kMethodModuleVersionCode    = "Module_VersionCode"
 private let kMethodModuleVersion        = "Module_Version"
 
@@ -372,6 +373,7 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
             switch call.method {
                 case kMethodModuleInitialize   :  handleModuleInitialize(argsMap!, result:result)
                 case kMethodModuleUnInitialize :  handleModuleUnInitialize(argsMap!, result:result)
+                case kMethodModuleHomeFolder   :  handleModuleHomeFolder(argsMap!, result:result)
                 case kMethodModuleVersionCode  :  handleModuleVersionCode(argsMap!, result:result)
                 case kMethodModuleVersion      :  handleModuleVersion(argsMap!, result:result)
                 
@@ -471,6 +473,11 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
         sendResult(err, result:result)
     }
 
+    func handleModuleHomeFolder(_ args : ArgsMap, result: @escaping FlutterResult) {
+        let path = _siprixModule.homeFolder()
+        result(path)
+    }
+
     func handleModuleVersionCode(_ args : ArgsMap, result: @escaping FlutterResult) {
         let versionCode = _siprixModule.versionCode()
         result(versionCode)
@@ -541,6 +548,9 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
 
         let verifyIncomingCall = args["verifyIncomingCall"] as? Bool
         if(verifyIncomingCall != nil) { accData.verifyIncomingCall = NSNumber(value: verifyIncomingCall!) }
+        
+        let forceSipProxy = args["forceSipProxy"] as? Bool
+        if(forceSipProxy != nil) { accData.forceSipProxy = NSNumber(value: forceSipProxy!) }
         
         let secureMedia = args["secureMedia"] as? Int
         if(secureMedia != nil) { accData.secureMedia = NSNumber(value:secureMedia!) }

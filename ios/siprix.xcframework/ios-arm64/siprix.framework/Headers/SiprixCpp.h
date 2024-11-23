@@ -255,6 +255,7 @@ EXPORT ISiprixModule* Module_Create();
 EXPORT ErrorCode   Module_Initialize(ISiprixModule* module, IniData* ini);
 EXPORT ErrorCode   Module_UnInitialize(ISiprixModule* module);
 EXPORT bool        Module_IsInitialized(ISiprixModule* module);
+EXPORT const char* Module_HomeFolder(ISiprixModule* module);
 EXPORT const char* Module_Version(ISiprixModule* module);
 EXPORT uint32_t    Module_VersionCode(ISiprixModule* module);
 
@@ -350,6 +351,7 @@ EXPORT void     Acc_SetSipAuthId(AccData* acc, const char* sipAuthId);
 EXPORT void     Acc_SetSipPassword(AccData* acc, const char* sipPassword);
 EXPORT void     Acc_SetExpireTime(AccData* acc, uint32_t expireTime);
 EXPORT void     Acc_SetSipProxyServer(AccData* acc, const char* sipProxyServer);
+EXPORT void     Acc_SetForceSipProxy(AccData* acc, bool forceForAllRequests);
 
 EXPORT void     Acc_SetStunServer(AccData* acc, const char* stunServer);
 EXPORT void     Acc_SetTurnServer(AccData* acc, const char* turnServer);

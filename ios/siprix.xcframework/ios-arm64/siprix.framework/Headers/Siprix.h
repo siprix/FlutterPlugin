@@ -155,6 +155,7 @@ EXPORT
 @property(nonatomic, retain) NSNumber * _Nullable keepAliveTime;
 @property(nonatomic, retain) NSNumber * _Nullable rewriteContactIp;
 @property(nonatomic, retain) NSNumber * _Nullable verifyIncomingCall;
+@property(nonatomic, retain) NSNumber * _Nullable forceSipProxy;
 @property(nonatomic, retain) NSNumber * _Nullable secureMedia;
 @property(nonatomic, retain) NSNumber * _Nullable transpPreferIPv6;
 @property(nonatomic, retain) NSString * _Nullable instanceId;
@@ -285,6 +286,7 @@ EXPORT
             iniData:(SiprixIniData* _Nonnull)iniData;
 - (int)unInitialize;
 - (NSString* _Nonnull) version;
+- (NSString* _Nonnull) homeFolder;
 - (int) versionCode;
 
 #if TARGET_OS_IPHONE

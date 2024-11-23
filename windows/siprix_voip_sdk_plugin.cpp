@@ -26,6 +26,7 @@ const char kChannelName[]               = "siprix_voip_sdk";
 
 const char kMethodModuleInitialize[]    = "Module_Initialize";
 const char kMethodModuleUnInitialize[]  = "Module_UnInitialize";
+const char kMethodModuleHomeFolder[]    = "Module_HomeFolder";
 const char kMethodModuleVersionCode[]   = "Module_VersionCode";
 const char kMethodModuleVersion[]       = "Module_Version";
                                         
@@ -160,6 +161,7 @@ void SiprixVoipSdkPlugin::buildHandlersTable()
 {
      handlers_[kMethodModuleInitialize]     = std::bind(&SiprixVoipSdkPlugin::handleModuleInitialize,   this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodModuleUnInitialize]   = std::bind(&SiprixVoipSdkPlugin::handleModuleUnInitialize, this, std::placeholders::_1, std::placeholders::_2);
+     handlers_[kMethodModuleHomeFolder]     = std::bind(&SiprixVoipSdkPlugin::handleModuleHomeFolder,   this, std::placeholders::_1, std::placeholders::_2);     
      handlers_[kMethodModuleVersionCode]    = std::bind(&SiprixVoipSdkPlugin::handleModuleVersionCode,  this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodModuleVersion]        = std::bind(&SiprixVoipSdkPlugin::handleModuleVersion,      this, std::placeholders::_1, std::placeholders::_2);
                                      
@@ -361,6 +363,12 @@ void SiprixVoipSdkPlugin::handleModuleUnInitialize(const flutter::EncodableMap& 
     sendResult(err, result);
 }
 
+void SiprixVoipSdkPlugin::handleModuleHomeFolder(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)
+{
+    std::string path = Siprix::Module_HomeFolder(module_);
+    result->Success(flutter::EncodableValue(path));
+}
+
 void SiprixVoipSdkPlugin::handleModuleVersionCode(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)
 {
     const int32_t versionCode = Siprix::Module_VersionCode(module_);
@@ -412,9 +420,10 @@ Siprix::AccData* SiprixVoipSdkPlugin::parseAccountData(const flutter::EncodableM
     const bool* boolVal = std::get_if<bool>(&val.second);
     if(boolVal) {
       if(valName->compare("rewriteContactIp") == 0)   Siprix::Acc_SetRewriteContactIp(accData,   *boolVal);else
-      if(valName->compare("verifyIncomingCall") == 0) Siprix::Acc_SetVerifyIncomingCall(accData, *boolVal);else      
-      if(valName->compare("tlsUseSipScheme") == 0)  Siprix::Acc_SetUseSipSchemeForTls(accData, *boolVal);else
-      if(valName->compare("rtcpMuxEnabled") == 0)   Siprix::Acc_SetRtcpMuxEnabled(accData,     *boolVal);
+      if(valName->compare("verifyIncomingCall") == 0) Siprix::Acc_SetVerifyIncomingCall(accData, *boolVal);else
+      if(valName->compare("forceSipProxy") == 0)      Siprix::Acc_SetForceSipProxy(accData,      *boolVal);else
+      if(valName->compare("tlsUseSipScheme") == 0)    Siprix::Acc_SetUseSipSchemeForTls(accData, *boolVal);else
+      if(valName->compare("rtcpMuxEnabled") == 0)     Siprix::Acc_SetRtcpMuxEnabled(accData,     *boolVal);
       continue;
     }
     

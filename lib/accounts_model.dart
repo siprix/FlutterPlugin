@@ -206,6 +206,7 @@ class AccountModel {
   int?    keepAliveTime;//seconds
   bool?   rewriteContactIp;
   bool?   verifyIncomingCall;
+  bool?   forceSipProxy;
   SecureMedia?  secureMedia;
     
   Map<String, String>? xheaders;
@@ -236,6 +237,7 @@ class AccountModel {
     if(ringTonePath    !=null) ret['ringTonePath']    = ringTonePath;
     if(keepAliveTime   !=null) ret['keepAliveTime']   = keepAliveTime;    
     if(rewriteContactIp!=null) ret['rewriteContactIp']= rewriteContactIp;
+    if(forceSipProxy   !=null) ret['forceSipProxy']   = forceSipProxy;
     if(verifyIncomingCall!=null) ret['verifyIncomingCall']= verifyIncomingCall;
     if(secureMedia     !=null) ret['secureMedia']     = secureMedia?.id;
     if(xheaders        !=null) ret['xheaders']        = xheaders;
@@ -264,7 +266,8 @@ class AccountModel {
       if((key == 'ringTonePath')&&(value is String))  { acc.ringTonePath = value;   } else
       if((key == 'keepAliveTime')&&(value is int))    { acc.keepAliveTime = value;  } else
       if((key == 'rewriteContactIp')&&(value is bool)) { acc.rewriteContactIp = value; } else
-      if((key == 'verifyIncomingCall')&&(value is bool)) { acc.verifyIncomingCall = value; } else      
+      if((key == 'verifyIncomingCall')&&(value is bool)) { acc.verifyIncomingCall = value; } else
+      if((key == 'forceSipProxy')&&(value is bool))   { acc.forceSipProxy = value; } else
       if((key == 'secureMedia')&&(value is int))      { acc.secureMedia = SecureMedia.from(value);  } else
       if((key == 'xheaders')&&(value is Map))         { acc.xheaders = Map<String, String>.from(value); } else
       if((key == 'aCodecs')&&(value is List))         { acc.aCodecs = List<int>.from(value); } else

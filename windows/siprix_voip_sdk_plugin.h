@@ -38,6 +38,7 @@ class SiprixVoipSdkPlugin : public flutter::Plugin, public Siprix::ISiprixEventH
   
   void handleModuleInitialize(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleModuleUnInitialize(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
+  void handleModuleHomeFolder(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleModuleVersionCode(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleModuleVersion(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   
