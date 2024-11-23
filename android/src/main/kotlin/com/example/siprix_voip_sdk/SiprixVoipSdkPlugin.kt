@@ -67,6 +67,7 @@ const val kMethodCallReject           = "Call_Reject"
 const val kMethodCallAccept           = "Call_Accept"
 const val kMethodCallHold             = "Call_Hold"
 const val kMethodCallGetHoldState     = "Call_GetHoldState"
+const val kMethodCallGetSipHeader     = "Call_GetSipHeader";
 const val kMethodCallMuteMic          = "Call_MuteMic"
 const val kMethodCallMuteCam          = "Call_MuteCam"
 const val kMethodCallSendDtmf         = "Call_SendDtmf"
@@ -585,6 +586,7 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
       kMethodCallAccept        ->   handleCallAccept(args, result)
       kMethodCallHold          ->   handleCallHold(args, result)
       kMethodCallGetHoldState  ->   handleCallGetHoldState(args, result)
+      kMethodCallGetSipHeader  ->   handleCallGetSipHeader(args, result)
       kMethodCallMuteMic       ->   handleCallMuteMic(args, result)
       kMethodCallMuteCam       ->   handleCallMuteCam(args, result)
       kMethodCallSendDtmf      ->   handleCallSendDtmf(args, result)
@@ -918,7 +920,19 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
       result.error(err.toString(), core!!.getErrText(err), null)
     }
   }
-  
+
+  private fun handleCallGetSipHeader(args : HashMap<String, Any?>, result: MethodChannel.Result) {
+    val callId :Int? = args[kArgCallId] as? Int
+    val hdrName :String? = args["hdrName"] as? String
+    
+    if((callId == null)||(hdrName==null)) {
+      sendBadArguments(result)
+      return
+    }
+
+    result.success(core!!.callGetSipHeader(callId, hdrName))
+  }
+
   private fun handleCallMuteMic(args : HashMap<String, Any?>, result: MethodChannel.Result) {
     val callId : Int? = args[kArgCallId] as? Int
     val mute :Boolean? = args["mute"] as? Boolean

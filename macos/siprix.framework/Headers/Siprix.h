@@ -321,6 +321,8 @@ EXPORT
 - (int)callBye:(int)callId;
 
 - (int)callSetVideoRenderer:(int)callId renderer:(id<SiprixVideoRendererDelegate> _Nullable) renderer;
+- (NSString* _Nonnull)callGetSipHeader:(int)callId hdrName:(NSString * _Nonnull)hdrName;
+
 #if TARGET_OS_IPHONE
 - (int)switchCamera;
 - (int)callSetVideoWindow:(int)callId view : (UIView * _Nullable) view;

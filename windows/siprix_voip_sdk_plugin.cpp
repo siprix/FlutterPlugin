@@ -40,6 +40,7 @@ const char kMethodCallReject[]          = "Call_Reject";
 const char kMethodCallAccept[]          = "Call_Accept";
 const char kMethodCallHold[]            = "Call_Hold";
 const char kMethodCallGetHoldState[]    = "Call_GetHoldState";
+const char kMethodCallGetSipHeader[]    = "Call_GetSipHeader";
 const char kMethodCallMuteMic[]         = "Call_MuteMic";
 const char kMethodCallMuteCam[]         = "Call_MuteCam";
 const char kMethodCallSendDtmf[]        = "Call_SendDtmf";
@@ -174,6 +175,7 @@ void SiprixVoipSdkPlugin::buildHandlersTable()
      handlers_[kMethodCallAccept]           = std::bind(&SiprixVoipSdkPlugin::handleCallAccept,         this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodCallHold]             = std::bind(&SiprixVoipSdkPlugin::handleCallHold,           this, std::placeholders::_1, std::placeholders::_2);    
      handlers_[kMethodCallGetHoldState]     = std::bind(&SiprixVoipSdkPlugin::handleCallGetHoldState,   this, std::placeholders::_1, std::placeholders::_2);
+     handlers_[kMethodCallGetSipHeader]     = std::bind(&SiprixVoipSdkPlugin::handleCallGetSipHeader,   this, std::placeholders::_1, std::placeholders::_2);     
      handlers_[kMethodCallMuteMic]          = std::bind(&SiprixVoipSdkPlugin::handleCallMuteMic,        this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodCallMuteCam]          = std::bind(&SiprixVoipSdkPlugin::handleCallMuteCam,        this, std::placeholders::_1, std::placeholders::_2);     
      handlers_[kMethodCallSendDtmf]         = std::bind(&SiprixVoipSdkPlugin::handleCallSendDtmf,       this, std::placeholders::_1, std::placeholders::_2);
@@ -598,6 +600,23 @@ void SiprixVoipSdkPlugin::handleCallGetHoldState(const flutter::EncodableMap& ar
 
     if (err == Siprix::EOK) result->Success(flutter::EncodableValue(static_cast<int32_t>(state)));
     else                    result->Error(std::to_string(err), std::string(Siprix::GetErrorText(err)));
+}
+
+void SiprixVoipSdkPlugin::handleCallGetSipHeader(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)
+{
+    bool bFound, bFound2;
+    Siprix::CallId callId = parseValue<int32_t>(kArgCallId, argsMap, bFound);
+    std::string hdrName = parseValue<std::string>("hdrName", argsMap, bFound2);
+    if (!bFound || !bFound2) { sendBadArgResult(result); return; }
+
+    std::string headerVal;
+    uint32_t headerValLen = 0;
+    Siprix::Call_GetSipHeader(module_, callId, hdrName.c_str(), nullptr, &headerValLen);
+    if (headerValLen > 0) {
+        headerVal.resize(headerValLen);
+        Siprix::Call_GetSipHeader(module_, callId, hdrName.c_str(), &headerVal[0], &headerValLen);
+    }
+    result->Success(flutter::EncodableValue(headerVal));
 }
 
 void SiprixVoipSdkPlugin::handleCallMuteMic(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)

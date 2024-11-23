@@ -26,6 +26,7 @@ private let kMethodCallReject           = "Call_Reject"
 private let kMethodCallAccept           = "Call_Accept"
 private let kMethodCallHold             = "Call_Hold"
 private let kMethodCallGetHoldState     = "Call_GetHoldState"
+private let kMethodCallGetSipHeader     = "Call_GetSipHeader";
 private let kMethodCallMuteMic          = "Call_MuteMic"
 private let kMethodCallMuteCam          = "Call_MuteCam"
 private let kMethodCallSendDtmf         = "Call_SendDtmf"
@@ -386,6 +387,7 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
             case kMethodCallAccept        :   handleCallAccept(argsMap!, result:result)
             case kMethodCallHold          :   handleCallHold(argsMap!, result:result)
             case kMethodCallGetHoldState  :   handleCallGetHoldState(argsMap!, result:result)
+            case kMethodCallGetSipHeader  :   handleCallGetSipHeader(argsMap!, result:result)
             case kMethodCallMuteMic       :   handleCallMuteMic(argsMap!, result:result)
             case kMethodCallMuteCam       :   handleCallMuteCam(argsMap!, result:result)
             case kMethodCallSendDtmf      :   handleCallSendDtmf(argsMap!, result:result)
@@ -694,6 +696,19 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
         }
     }
 
+    func handleCallGetSipHeader(_ args : ArgsMap, result: @escaping FlutterResult) {
+        let callId = args[kArgCallId] as? Int
+        let hdrName = args["hdrName"] as? String
+
+        if((callId == nil)||(hdrName == nil)) {
+            sendBadArguments(result:result)
+            return
+        }
+        
+        let hdrVal = _siprixModule.callGetSipHeader(Int32(callId!), hdrName:hdrName!)
+        result(hdrVal)
+    }
+
     func handleCallMuteMic(_ args : ArgsMap, result: @escaping FlutterResult) {
         let callId = args[kArgCallId] as? Int
         let mute   = args["mute"] as? Bool
@@ -773,7 +788,7 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
         let callId        = args[kArgCallId] as? Int
         let pathToMp3File = args["pathToMp3File"] as? String
         
-        if((callId == nil)||(pathToMp3File==nil)) {
+        if((callId != nil)||(pathToMp3File != nil)) {
             let err = _siprixModule.callRecordFile(Int32(callId!), pathToMp3File:pathToMp3File!)
             sendResult(err, result:result)
         }else{            

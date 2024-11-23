@@ -365,6 +365,7 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kMethodCallAccept          = 'Call_Accept';
   static const String _kMethodCallHold            = 'Call_Hold';
   static const String _kMethodCallGetHoldState    = 'Call_GetHoldState';
+  static const String _kMethodCallGetSipHeader    = 'Call_GetSipHeader';
   static const String _kMethodCallMuteMic         = 'Call_MuteMic';
   static const String _kMethodCallMuteCam         = 'Call_MuteCam';
   static const String _kMethodCallSendDtmf        = 'Call_SendDtmf';
@@ -555,6 +556,11 @@ class SiprixVoipSdk extends PlatformInterface
   Future<int?> getHoldState(int callId) {
     return _methodChannel.invokeMethod<int>(_kMethodCallGetHoldState, 
         {_kArgCallId:callId} );    
+  }
+
+  Future<String?> getSipHeader(int callId, String headerName) {
+    return _methodChannel.invokeMethod<String>(_kMethodCallGetSipHeader, 
+        {_kArgCallId:callId, 'hdrName':headerName} );
   }
 
   Future<void> muteMic(int callId, bool mute) {

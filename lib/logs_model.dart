@@ -7,6 +7,7 @@ import 'siprix_voip_sdk.dart';
 //LogLevel helper
 
 enum LogLevel {
+  stack(SiprixVoipSdk.kLogLevelStack, "Stack"),
   debug(SiprixVoipSdk.kLogLevelDebug, "Debug"),
   info(SiprixVoipSdk.kLogLevelInfo, "Info"), 
   warning(SiprixVoipSdk.kLogLevelWarning, "Warning"),
