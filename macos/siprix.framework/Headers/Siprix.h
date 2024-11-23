@@ -34,6 +34,12 @@ typedef NS_ENUM(NSInteger, RegState) {
     RegStateInProgress
 };
 
+typedef NS_ENUM(NSInteger, SubscrState) {
+    SubscrCreated = 0,
+    SubscrUpdated,
+    SubscrDestroyed
+};
+
 typedef NS_ENUM(NSInteger, NetworkState) {
     NetworkStateLost = 0,
     NetworkStateRestored,
@@ -179,6 +185,16 @@ EXPORT
 @end
 
 EXPORT
+@interface SiprixSubscrData : NSObject
+@property(nonatomic, assign) int mySubscrId;
+@property(nonatomic, assign) int fromAccId;
+@property(nonatomic, retain) NSString* _Nonnull toExt;
+@property(nonatomic, retain) NSString* _Nonnull mimeSubtype;
+@property(nonatomic, retain) NSString* _Nonnull eventType;
+@property(nonatomic, retain) NSNumber* _Nullable expireTime;
+@end
+
+EXPORT
 @interface SiprixHoldData : NSObject
 @property(nonatomic, assign) HoldState holdState;
 @end
@@ -237,6 +253,9 @@ EXPORT
 
 - (void)onAccountRegState:(NSInteger)accId
             regState:(RegState)regState
+            response:(NSString * _Nonnull)response;
+- (void)onSubscriptionState:(NSInteger)subscrId
+            subscrState:(SubscrState)subscrState
             response:(NSString * _Nonnull)response;
 - (void)onNetworkState:(NSString * _Nonnull)name
               netState:(NetworkState)netState;
@@ -351,6 +370,9 @@ EXPORT
 - (int)dvcSetVideoDevice:(int)index;
 #endif//(TARGET_OS_OSX)
 - (int)dvcSetVideoParams:(SiprixVideoData* _Nonnull)vdoData;
+
+- (int)subscrCreate:(SiprixSubscrData * _Nonnull)subscrData;
+- (int)subscrDestroy:(int)subscrId;
 
 - (NSString* _Nonnull)getErrorText:(int)errCode;
 - (void)dealloc;
