@@ -557,6 +557,9 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
          
         let xheaders = args["xheaders"] as? Dictionary<AnyHashable,Any>
         if(xheaders != nil) { accData.xheaders = xheaders }
+
+        let xContactUriParams = args["xContactUriParams"] as? Dictionary<AnyHashable,Any>
+        if(xContactUriParams != nil) { accData.xContactUriParams = xContactUriParams }
         
         let aCodecs = args["aCodecs"] as? [Int]
         if(aCodecs != nil) { accData.aCodecs = aCodecs }

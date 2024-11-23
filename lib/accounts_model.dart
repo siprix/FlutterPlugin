@@ -210,6 +210,7 @@ class AccountModel {
   SecureMedia?  secureMedia;
     
   Map<String, String>? xheaders;
+  Map<String, String>? xContactUriParams;
   List<int>? aCodecs;
   List<int>? vCodecs;
 
@@ -240,6 +241,7 @@ class AccountModel {
     if(forceSipProxy   !=null) ret['forceSipProxy']   = forceSipProxy;
     if(verifyIncomingCall!=null) ret['verifyIncomingCall']= verifyIncomingCall;
     if(secureMedia     !=null) ret['secureMedia']     = secureMedia?.id;
+    if(xContactUriParams !=null) ret['xContactUriParams'] = xContactUriParams;
     if(xheaders        !=null) ret['xheaders']        = xheaders;
     if(aCodecs         !=null) ret['aCodecs']         = aCodecs;
     if(vCodecs         !=null) ret['vCodecs']         = vCodecs;    
@@ -269,6 +271,7 @@ class AccountModel {
       if((key == 'verifyIncomingCall')&&(value is bool)) { acc.verifyIncomingCall = value; } else
       if((key == 'forceSipProxy')&&(value is bool))   { acc.forceSipProxy = value; } else
       if((key == 'secureMedia')&&(value is int))      { acc.secureMedia = SecureMedia.from(value);  } else
+      if((key == 'xContactUriParams')&&(value is Map)) { acc.xContactUriParams = Map<String, String>.from(value); } else
       if((key == 'xheaders')&&(value is Map))         { acc.xheaders = Map<String, String>.from(value); } else
       if((key == 'aCodecs')&&(value is List))         { acc.aCodecs = List<int>.from(value); } else
       if((key == 'vCodecs')&&(value is List))         { acc.vCodecs = List<int>.from(value); } 

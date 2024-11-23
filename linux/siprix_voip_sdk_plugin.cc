@@ -496,6 +496,19 @@ Siprix::AccData* parseAccData(FlValue* args)
         }
     }
 
+    val = fl_value_lookup_string(args, "xContactUriParams");
+    if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_MAP) {
+        for (size_t i = 0; i < fl_value_get_length(val); ++i) {
+            FlValue* xParamName = fl_value_get_map_key(val, i);
+            FlValue* xParamValue = fl_value_get_map_value(val, i);
+        
+            if((fl_value_get_type(xParamName) == FL_VALUE_TYPE_STRING)&&
+                (fl_value_get_type(xParamValue) == FL_VALUE_TYPE_STRING)) {
+                Siprix::Acc_AddXContactUriParam(accData, fl_value_get_string(xParamName), fl_value_get_string(xParamValue));
+            }
+        }
+    }
+
     val = fl_value_lookup_string(args, "aCodecs");
     if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_INT32_LIST) {
         Siprix::Acc_ResetAudioCodecs(accData);

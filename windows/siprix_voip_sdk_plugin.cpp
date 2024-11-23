@@ -436,6 +436,14 @@ Siprix::AccData* SiprixVoipSdkPlugin::parseAccountData(const flutter::EncodableM
       }
     }
 
+    if(mapVal && (valName->compare("xContactUriParams") == 0)) {
+      for(const auto& xHdr : *mapVal) {
+        const std::string* xParamName  = std::get_if<std::string>(&xHdr.first);
+        const std::string* xParamValue = std::get_if<std::string>(&xHdr.second);
+        if(xParamName && xParamValue) Siprix::Acc_AddXContactUriParam(accData, xParamName->c_str(), xParamValue->c_str());
+      }
+    }
+
     const auto* listVal = std::get_if<flutter::EncodableList>(&val.second);
     if(listVal && (valName->compare("aCodecs") == 0)) {
         Siprix::Acc_ResetAudioCodecs(accData);

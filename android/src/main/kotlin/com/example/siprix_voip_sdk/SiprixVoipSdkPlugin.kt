@@ -792,6 +792,15 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
       }
     }
 
+    val xContactUriParams: HashMap<String, Any?>? = args["xContactUriParams"] as? HashMap<String, Any?>?
+    if(xContactUriParams != null) {
+      for ((paramName, paramVal) in xContactUriParams) {
+        val paramStrVal : String? = paramVal as? String
+        if(paramStrVal != null)
+          accData.addXContactUriParam(paramName, paramStrVal)
+      }
+    }
+
     val aCodecs: ArrayList<Int?>? = args["aCodecs"] as? ArrayList<Int?>?
     if(aCodecs != null) {
       accData.resetAudioCodecs()
