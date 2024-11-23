@@ -110,6 +110,7 @@ class _MyAppState extends State<MyApp> {
     iniData.license  = "...license-credentials...";
     iniData.logLevelFile = LogLevel.debug;
     iniData.logLevelIde = LogLevel.debug;
+    //iniData.listenTelState = true;
     //iniData.singleCallMode = false;
     //iniData.tlsVerifyServer = false;
     SiprixVoipSdk().initialize(iniData, logsModel);

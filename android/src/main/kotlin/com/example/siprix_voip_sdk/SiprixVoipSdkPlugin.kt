@@ -654,6 +654,9 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
     val shareUdpTransport : Boolean? = args["shareUdpTransport"] as? Boolean
     if(shareUdpTransport != null) { iniData.setShareUdpTransport(shareUdpTransport); }
 
+    val listenTelState : Boolean? = args["listenTelState"] as? Boolean
+    if(listenTelState != null) { iniData.setUseTelState(listenTelState); }
+
     iniData.setUseExternalRinger(true)
     val err = core!!.initialize(iniData)
     sendResult(err, result)

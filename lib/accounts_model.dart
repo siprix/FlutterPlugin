@@ -20,6 +20,7 @@ class InitData {
   bool? tlsVerifyServer;
   bool? singleCallMode;
   bool? shareUdpTransport;
+  bool? listenTelState;
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> ret = {};
@@ -31,6 +32,7 @@ class InitData {
     if(tlsVerifyServer!=null)   ret['tlsVerifyServer'] = tlsVerifyServer;
     if(singleCallMode!=null)    ret['singleCallMode'] = singleCallMode;
     if(shareUdpTransport!=null) ret['shareUdpTransport'] = shareUdpTransport;
+    if(listenTelState!=null)    ret['listenTelState'] = listenTelState;
     return ret;
   }
 }//InitData
