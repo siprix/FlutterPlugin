@@ -49,11 +49,10 @@ class _SubscrAddPageState extends State<SubscrAddPage> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildAccountsMenu(accounts),
-            const SizedBox(height: 15,),
             _buildLabelField(),
             _buildExtensionField(),
             const SizedBox(height: 15),
-            ElevatedButton(onPressed: _addSubscription, child: const Icon(Icons.add_circle)),
+            OutlinedButton(onPressed: _addSubscription, child: const Icon(Icons.add_circle)),
             const Spacer(),
             Text(_errText, style: const TextStyle(color: Colors.red))
           ]
@@ -62,9 +61,9 @@ class _SubscrAddPageState extends State<SubscrAddPage> {
   }
 
   Widget _buildAccountsMenu(AccountsModel accounts) {
-    return ButtonTheme(alignedDropdown: true, child: DropdownButtonFormField<int>(
+    return ButtonTheme(child: DropdownButtonFormField<int>(
       decoration: const InputDecoration(labelText: 'Select account:'),
-      value: _subscr.fromAccId,      
+      value: _subscr.fromAccId,
       onChanged: (int? accId) { setState(() { if(accId!=null)  _subscr.fromAccId = accId; }); },
       items: List.generate(accounts.length, (index) => accMenuItem(accounts[index], index)),
     ));

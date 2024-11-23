@@ -23,24 +23,20 @@ class _AccountsListPageState extends State<AccountsListPage> {
   Widget build(BuildContext context) {
     final accounts = context.watch<AccountsModel>();
     return Column(children: [
-      const ListTile(leading: Text('State'), title: Text('Name'), trailing: Text('Action'),),
+      const ListTile(leading: Text('State'), title: Text('Name'), trailing: Text('Action')),
       const Divider(height: 0),
-      ListView.separated(
-        shrinkWrap: true,
+      Expanded(child:ListView.separated(
         scrollDirection: Axis.vertical,
-        itemCount: accounts.length,
+        itemCount: accounts.length+1,
         itemBuilder: (BuildContext context, int index) { return _accListTile(accounts, index); },
         separatorBuilder: (BuildContext context, int index) => const Divider(height: 0,),
-      ),
-      Align(alignment: Alignment.topRight, 
-        child:Padding(padding: const EdgeInsets.all(11), 
-          child:ElevatedButton(onPressed: _addAccount, child: const Icon(Icons.add_circle)))
-      ),
-      const Spacer(),
+      )),
     ]);
   }
 
-  ListTile _accListTile(AccountsModel accounts, int index) {
+  Widget _accListTile(AccountsModel accounts, int index) {
+    if(index >= accounts.length) return _addAccountButton();
+
     AccountModel acc = accounts[index];
     return 
       ListTile(
@@ -90,6 +86,14 @@ class _AccountsListPageState extends State<AccountsListPage> {
     setState(() {
       _selRowIdx = rowIndex;
     });
+  }
+
+  Widget _addAccountButton() {
+    return 
+      Align(alignment: Alignment.topRight, 
+        child:Padding(padding: const EdgeInsets.all(11), 
+          child:OutlinedButton(onPressed: _addAccount, child: const Icon(Icons.add_circle)))
+      );
   }
 
   void _addAccount() {

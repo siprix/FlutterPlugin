@@ -26,22 +26,18 @@ class _SubscrListPageState extends State<SubscrListPage> {
     return Column(children: [
       const ListTile(leading: Text('State'), title: Text('Label'), trailing: Text('Action'),),
       const Divider(height: 0),
-      ListView.separated(
-        shrinkWrap: true,
+      Expanded(child: ListView.separated(
         scrollDirection: Axis.vertical,
-        itemCount: subscriptions.length,
+        itemCount: subscriptions.length+1,
         itemBuilder: (BuildContext context, int index) { return _subscrListTile(subscriptions, index); },
         separatorBuilder: (BuildContext context, int index) => const Divider(height: 0,),
-      ),
-      Align(alignment: Alignment.topRight, 
-        child:Padding(padding: const EdgeInsets.all(11), 
-          child:ElevatedButton(onPressed: _addSubscription, child: const Icon(Icons.add_circle)))
-      ),
-      const Spacer(),
+      ))
     ]);
   }
 
   Widget _subscrListTile(SubscriptionsModel subscriptions, int index) {
+    if(index >= subscriptions.length) return _addSubscriptionButton();
+
     if(subscriptions[index] is! BlfSubscrModel) {
       SubscriptionModel subscr = subscriptions[index];
       return Text(subscr.label, style: Theme.of(context).textTheme.titleSmall);
@@ -73,6 +69,13 @@ class _SubscrListPageState extends State<SubscrListPage> {
     });
   }
 
+  Widget _addSubscriptionButton() {
+    return 
+      Align(alignment: Alignment.topRight, 
+        child:Padding(padding: const EdgeInsets.all(11), 
+          child:OutlinedButton(onPressed: _addSubscription, child: const Icon(Icons.add_circle)))
+      );
+  }
   void _addSubscription() {
     Navigator.of(context).pushNamed(SubscrAddPage.routeName);
   }
