@@ -56,23 +56,21 @@ class MyApp extends StatefulWidget {
   }
 
   static Future<String> writeAssetAndGetFilePath(String assetsFileName) async {
-    Directory tempDir = Platform.isIOS ? await getApplicationDocumentsDirectory() : await getTemporaryDirectory();
-    var dirSeparator = Platform.isWindows ? '\\' : '/';
-    var filePath = '${tempDir.path}$dirSeparator$assetsFileName';
+    var homeFolder = await SiprixVoipSdk().homeFolder();
+    var filePath = '$homeFolder$assetsFileName';
+    
     var file = File(filePath);
     if (file.existsSync()) return filePath;
 
     final byteData = await rootBundle.load('assets/$assetsFileName');
     await file.create(recursive: true);
-    file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));      
+    file.writeAsBytes(byteData.buffer.asUint8List(), flush: true);
     return filePath;
   }
 
-  static Future<String> getRecFilePath(String assetsFileName) async {
-    Directory? tempDir = Platform.isAndroid ? await getExternalStorageDirectory() : await getTemporaryDirectory();
-    tempDir ??= await getApplicationDocumentsDirectory();
-    var dirSeparator = Platform.isWindows ? '\\' : '/';
-    var filePath = '${tempDir.path}$dirSeparator$assetsFileName';
+  static Future<String> getRecFilePath(String recFileName) async {
+    var homeFolder = await SiprixVoipSdk().homeFolder();
+    var filePath = '$homeFolder$recFileName';
     return filePath;
   }
 }
@@ -81,9 +79,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    widget.writeRingtoneAsset();
 
     _initializeSiprix(context.read<LogsModel>());
+    widget.writeRingtoneAsset();//after initialize Siprix as uses its 'homeFolder'
     _readSavedState();
   }
 
