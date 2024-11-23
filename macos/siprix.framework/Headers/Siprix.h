@@ -67,6 +67,7 @@ typedef NS_ENUM(NSInteger, CallState) {
 };
 
 typedef NS_ENUM(NSInteger, LogLevel) {
+    LogLevelStack=0,
     LogLevelDebug=1,
     LogLevelInfo=2,
     LogLevelWarning=3,
@@ -153,6 +154,7 @@ EXPORT
 @property(nonatomic, retain) NSNumber * _Nullable rtcpMuxEnabled;
 @property(nonatomic, retain) NSNumber * _Nullable keepAliveTime;
 @property(nonatomic, retain) NSNumber * _Nullable rewriteContactIp;
+@property(nonatomic, retain) NSNumber * _Nullable verifyIncomingCall;
 @property(nonatomic, retain) NSNumber * _Nullable secureMedia;
 @property(nonatomic, retain) NSNumber * _Nullable transpPreferIPv6;
 @property(nonatomic, retain) NSString * _Nullable instanceId;

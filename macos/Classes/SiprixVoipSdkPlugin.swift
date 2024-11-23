@@ -538,6 +538,9 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
 
         let rewriteContactIp = args["rewriteContactIp"] as? Bool
         if(rewriteContactIp != nil) { accData.rewriteContactIp = NSNumber(value: rewriteContactIp!) }
+
+        let verifyIncomingCall = args["verifyIncomingCall"] as? Bool
+        if(verifyIncomingCall != nil) { accData.verifyIncomingCall = NSNumber(value: verifyIncomingCall!) }
         
         let secureMedia = args["secureMedia"] as? Int
         if(secureMedia != nil) { accData.secureMedia = NSNumber(value:secureMedia!) }

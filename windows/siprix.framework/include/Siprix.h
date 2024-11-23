@@ -376,6 +376,7 @@ EXPORT void     Acc_SetTranspPreferIPv6(AccData* acc, bool prefer);
 EXPORT void     Acc_AddXHeader(AccData* acc, const char* header, const char* value);
 EXPORT void     Acc_AddXContactUriParam(AccData* acc, const char* param, const char* value);
 EXPORT void     Acc_SetRewriteContactIp(AccData* acc, bool enabled);
+EXPORT void     Acc_SetVerifyIncomingCall(AccData* acc, bool enabled);
 
 EXPORT void     Acc_AddAudioCodec(AccData* acc, AudioCodec codec);
 EXPORT void     Acc_AddVideoCodec(AccData* acc, VideoCodec codec);
