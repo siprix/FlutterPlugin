@@ -12,10 +12,13 @@ import 'package:siprix_voip_sdk/calls_model.dart';
 import 'package:siprix_voip_sdk/cdrs_model.dart';
 import 'package:siprix_voip_sdk/devices_model.dart';
 import 'package:siprix_voip_sdk/logs_model.dart';
+import 'package:siprix_voip_sdk/subscriptions_model.dart';
 import 'package:siprix_voip_sdk/siprix_voip_sdk.dart';
 
 import 'account_add.dart';
 import 'call_add.dart';
+import 'subscr_add.dart';
+import 'subscr_model.dart';
 import 'settings.dart';
 import 'home.dart';
 
@@ -27,6 +30,7 @@ void main() async {
   NetworkModel networkModel = NetworkModel(logsModel);//Network state details
   AccountsModel accountsModel = AccountsModel(logsModel);//List of accounts
   CallsModel callsModel = CallsModel(accountsModel, logsModel, cdrsModel);//List of calls
+  SubscriptionsModel subscrModel = SubscriptionsModel<BlfSubscrModel>(accountsModel, BlfSubscrModel.fromJson, logsModel);//List of subscriptions
 
   //Run app
   runApp(
@@ -34,6 +38,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => accountsModel),
       ChangeNotifierProvider(create: (context) => networkModel),
       ChangeNotifierProvider(create: (context) => devicesModel),
+      ChangeNotifierProvider(create: (context) => subscrModel),
       ChangeNotifierProvider(create: (context) => callsModel),
       ChangeNotifierProvider(create: (context) => cdrsModel),
       ChangeNotifierProvider(create: (context) => logsModel),
@@ -92,8 +97,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       routes: <String, WidgetBuilder>{
         CallAddPage.routeName: (BuildContext context) => const CallAddPage(true),
+        SettingsPage.routeName: (BuildContext context) => const SettingsPage(),
         AccountPage.routeName: (BuildContext context) => const AccountPage(),
-        SettingsPage.routeName: (BuildContext context) => const SettingsPage()
+        SubscrAddPage.routeName: (BuildContext context) => const SubscrAddPage(),
       },
       home: const HomePage(),
       title: 'Siprix VoIP app',
@@ -109,7 +115,7 @@ class _MyAppState extends State<MyApp> {
     InitData iniData = InitData();
     iniData.license  = "...license-credentials...";
     iniData.logLevelFile = LogLevel.debug;
-    iniData.logLevelIde = LogLevel.debug;
+    iniData.logLevelIde = LogLevel.info;
     //iniData.listenTelState = true;
     //iniData.singleCallMode = false;
     //iniData.tlsVerifyServer = false;
@@ -125,21 +131,30 @@ class _MyAppState extends State<MyApp> {
   void _readSavedState() {
     SharedPreferences.getInstance().then((prefs) {
       String accJsonStr = prefs.getString('accounts') ?? '';
+      String subsJsonStr = prefs.getString('subscriptions') ?? '';
       String cdrsJsonStr = prefs.getString('cdrs') ?? '';
-      _restoreModels(accJsonStr, cdrsJsonStr);
+      _loadModels(accJsonStr, cdrsJsonStr, subsJsonStr);
     });
   }
 
-  void _restoreModels(String accJsonStr, String cdrsJsonStr) {
-    //Read saved accounts
-    AccountsModel accModel = context.read<AccountsModel>();
-    accModel.loadFromJson(accJsonStr);
-    accModel.onSaveChanges = _saveAccountChanges;
-      
-    //Read saved CDRs
+  void _loadModels(String accJsonStr, String cdrsJsonStr, String subsJsonStr) {
+    //Accounts
+    AccountsModel accsModel = context.read<AccountsModel>();
+    accsModel.onSaveChanges = _saveAccountChanges;
+
+    //Subscriptions
+    SubscriptionsModel subsModel = context.read<SubscriptionsModel>();
+    subsModel.onSaveChanges = _saveSubscriptionChanges;
+
+    //CDRs (Call Details Records)
     CdrsModel cdrs = context.read<CdrsModel>();
-    cdrs.loadFromJson(cdrsJsonStr);
     cdrs.onSaveChanges = _saveCdrsChanges;
+
+    //Load accounts, then other models
+    accsModel.loadFromJson(accJsonStr).then((val)  {
+      subsModel.loadFromJson(subsJsonStr);
+      cdrs.loadFromJson(cdrsJsonStr);
+    });
 
     //Assign contact name resolver
     context.read<CallsModel>().onResolveContactName = _resolveContactName;
@@ -157,6 +172,12 @@ class _MyAppState extends State<MyApp> {
   void _saveAccountChanges(String accountsJsonStr) {
     SharedPreferences.getInstance().then((prefs) {
       prefs.setString('accounts', accountsJsonStr);
+    });
+  }
+
+  void _saveSubscriptionChanges(String subscrJsonStr) {
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('subscriptions', subscrJsonStr);
     });
   }
 

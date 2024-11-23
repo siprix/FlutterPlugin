@@ -68,6 +68,9 @@ class SiprixVoipSdkPlugin : public flutter::Plugin, public Siprix::ISiprixEventH
   void handleMixerSwitchToCall(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleMixerMakeConference(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
 
+  void handleSubscriptionAdd(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
+  void handleSubscriptionDelete(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
+
   void handleDvcGetPlayoutNumber(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleDvcGetRecordNumber(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
   void handleDvcGetVideoNumber(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result);
@@ -101,6 +104,7 @@ protected:
   void OnDevicesAudioChanged() override;
     
   void OnAccountRegState(Siprix::AccountId accId, Siprix::RegState state, const char* response) override;
+  void OnSubscriptionState(Siprix::SubscriptionId subId, Siprix::SubscriptionState state, const char* response) override;
   void OnNetworkState(const char* name, Siprix::NetworkState state) override;
   void OnPlayerState(Siprix::PlayerId playerId, Siprix::PlayerState state) override;
   void OnRingerState(bool started) override;

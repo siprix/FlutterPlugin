@@ -60,6 +60,9 @@ const char kMethodCallBye[]             = "Call_Bye";
 const char kMethodMixerSwitchToCall[]   = "Mixer_SwitchToCall";
 const char kMethodMixerMakeConference[] = "Mixer_MakeConference";
 
+const char kMethodSubscriptionAdd[]     = "Subscription_Add";
+const char kMethodSubscriptionDelete[]  = "Subscription_Delete";
+
 const char kMethodDvcGetPlayoutNumber[] = "Dvc_GetPlayoutDevices";
 const char kMethodDvcGetRecordNumber[]  = "Dvc_GetRecordingDevices";
 const char kMethodDvcGetVideoNumber[]   = "Dvc_GetVideoDevices";
@@ -79,6 +82,7 @@ const char kOnTrialModeNotif[]   = "OnTrialModeNotif";
 const char kOnDevicesChanged[]   = "OnDevicesChanged";
 
 const char kOnAccountRegState[]  = "OnAccountRegState";
+const char kOnSubscriptionState[]= "OnSubscriptionState";
 const char kOnNetworkState[]     = "OnNetworkState";
 const char kOnPlayerState[]      = "OnPlayerState";
 const char kOnRingerState[]      = "OnRingerState";
@@ -104,16 +108,18 @@ const char kArgDvcIndex[] = "dvcIndex";
 const char kArgDvcName[]  = "dvcName";
 const char kArgDvcGuid[]  = "dvcGuid";
 
-const char kArgCallId[]= "callId";
+const char kArgCallId[]     = "callId";
 const char kArgFromCallId[] = "fromCallId";
 const char kArgToCallId[]   = "toCallId";
 const char kArgToExt[]      = "toExt";
 
-const char kArgAccId[] = "accId";
+const char kArgAccId[]    = "accId";
 const char kArgPlayerId[] = "playerId";
-const char kRegState[] = "regState";
-const char kHoldState[]= "holdState";
+const char kArgSubscrId[] = "subscrId";
+const char kRegState[]    = "regState";
+const char kHoldState[]   = "holdState";
 const char kPlayerState[] = "playerState";
+const char kSubscrState[] = "subscrState";
 
 const char kNetState[]    = "netState";
 const char kResponse[] = "response";
@@ -130,6 +136,7 @@ class EventHandler : public Siprix::ISiprixEventHandler {
   void OnDevicesAudioChanged() override;
     
   void OnAccountRegState(Siprix::AccountId accId, Siprix::RegState state, const char* response) override;
+  void OnSubscriptionState(Siprix::SubscriptionId subscrId, Siprix::SubscriptionState state, const char* response) override;
   void OnNetworkState(const char* name, Siprix::NetworkState state) override;
   void OnPlayerState(Siprix::PlayerId playerId, Siprix::PlayerState state) override;
   void OnRingerState(bool start) override;
@@ -891,6 +898,51 @@ FlMethodResponse* handleMixerMakeConference(FlValue* args, SiprixVoipSdkPlugin* 
     return sendResult(err);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
+//Siprix subscriptions
+
+FlMethodResponse* handleSubscriptionAdd(FlValue* args, SiprixVoipSdkPlugin* self)
+{
+  Siprix::SubscrData* subscrData = Siprix::Subscr_GetDefault();
+  
+  FlValue* val = fl_value_lookup_string(args, "extension");
+  if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_STRING)
+      Subscr_SetExtension(subscrData, fl_value_get_string(val));
+
+  val = fl_value_lookup_string(args, kArgAccId);
+  if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_INT)
+      Siprix::Subscr_SetAccountId(subscrData, fl_value_get_int(val));
+
+  val = fl_value_lookup_string(args, "expireTime");
+  if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_INT)
+      Siprix::Subscr_SetExpireTime(subscrData, fl_value_get_int(val));
+
+  val = fl_value_lookup_string(args, "mimeSubType");
+  if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_STRING)
+      Subscr_SetMimeSubtype(subscrData, fl_value_get_string(val));
+
+  val = fl_value_lookup_string(args, "eventType");
+  if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_STRING)
+      Subscr_SetEventType(subscrData, fl_value_get_string(val));
+    
+  Siprix::SubscriptionId subscrId=0;
+  const Siprix::ErrorCode err = Siprix::Subscription_Create(self->module_, subscrData, &subscrId);
+  if(err == Siprix::EOK){
+    g_autoptr(FlValue) res = fl_value_new_int(subscrId);
+    return FL_METHOD_RESPONSE(fl_method_success_response_new(res));
+  }
+  return sendResult(err);
+}
+
+FlMethodResponse* handleSubscriptionDelete(FlValue* args, SiprixVoipSdkPlugin* self)
+{
+    FlValue* val = fl_value_lookup_string(args, kArgSubscrId);
+    if (val == nullptr || fl_value_get_type(val) != FL_VALUE_TYPE_INT) return badArgsResponse();
+    const Siprix::SubscriptionId subscrId = fl_value_get_int(val);
+
+    const Siprix::ErrorCode err = Siprix::Subscription_Destroy(self->module_, subscrId);
+    return sendResult(err);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //Siprix Devices methods implementation
@@ -1127,7 +1179,10 @@ static void siprix_voip_sdk_plugin_handle_method_call(
 
     if(strcmp(method, kMethodMixerSwitchToCall) == 0)    response = handleMixerSwitchToCall(args, self); else
     if(strcmp(method, kMethodMixerMakeConference) == 0)  response = handleMixerMakeConference(args, self);else
-    
+
+    if(strcmp(method, kMethodSubscriptionAdd) == 0)      response = handleSubscriptionAdd(args, self); else
+    if(strcmp(method, kMethodSubscriptionDelete) == 0)   response = handleSubscriptionDelete(args, self);else
+
     if(strcmp(method, kMethodDvcGetPlayoutNumber)== 0)   response = handleDvcGetPlayoutNumber(args, self); else
     if(strcmp(method, kMethodDvcGetRecordNumber) == 0)   response = handleDvcGetRecordNumber(args, self); else
     if(strcmp(method, kMethodDvcGetVideoNumber)  == 0)   response = handleDvcGetVideoNumber(args, self); else
@@ -1204,6 +1259,17 @@ void EventHandler::OnAccountRegState(Siprix::AccountId accId, Siprix::RegState s
     fl_value_set_string_take(args, kResponse, fl_value_new_string(response));
 
     fl_method_channel_invoke_method(channel_, kOnAccountRegState, args,
+        nullptr, nullptr, nullptr);
+}
+
+void EventHandler::OnSubscriptionState(Siprix::SubscriptionId subscrId, Siprix::SubscriptionState state, const char* response)
+{
+    g_autoptr(FlValue) args = fl_value_new_map();    
+    fl_value_set_string_take(args, kArgSubscrId, fl_value_new_int(subscrId));
+    fl_value_set_string_take(args, kSubscrState, fl_value_new_int(state));
+    fl_value_set_string_take(args, kResponse, fl_value_new_string(response));
+
+    fl_method_channel_invoke_method(channel_, kOnSubscriptionState, args,
         nullptr, nullptr, nullptr);
 }
 

@@ -19,13 +19,14 @@ import android.os.Looper
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.siprix.IniData
 import com.siprix.AccData
 import com.siprix.DestData
-import com.siprix.ISiprixModelListener
-import com.siprix.IniData
 import com.siprix.VideoData
+import com.siprix.SubscrData
 import com.siprix.SiprixCore
 import com.siprix.SiprixEglBase
+import com.siprix.ISiprixModelListener
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -86,6 +87,9 @@ const val kMethodCallBye              = "Call_Bye"
 const val kMethodMixerSwitchToCall   = "Mixer_SwitchToCall"
 const val kMethodMixerMakeConference = "Mixer_MakeConference"
 
+const val kMethodSubscriptionAdd     = "Subscription_Add"
+const val kMethodSubscriptionDelete  = "Subscription_Delete"
+
 const val kMethodDvcSetForegroundMode= "Dvc_SetForegroundMode"
 const val kMethodDvcIsForegroundMode = "Dvc_IsForegroundMode"
 const val kMethodDvcGetPlayoutNumber = "Dvc_GetPlayoutDevices"
@@ -106,6 +110,7 @@ const val kMethodVideoRendererDispose= "Video_RendererDispose"
 const val kOnTrialModeNotif   = "OnTrialModeNotif"
 const val kOnDevicesChanged   = "OnDevicesChanged"
 const val kOnAccountRegState  = "OnAccountRegState"
+const val kOnSubscriptionState= "OnSubscriptionState"
 const val kOnNetworkState     = "OnNetworkState"
 const val kOnPlayerState      = "OnPlayerState"
 const val kOnCallProceeding   = "OnCallProceeding"
@@ -136,9 +141,11 @@ const val kArgToCallId   = "toCallId"
 const val kArgToExt      = "toExt"
 const val kArgAccId      = "accId"
 const val kArgPlayerId   = "playerId"
+const val kArgSubscrId   = "subscrId"
 const val kRegState    = "regState"
 const val kHoldState   = "holdState"
 const val kPlayerState = "playerState"
+const val kSubscrState = "subscrState"
 const val kNetState    = "netState"
 const val kResponse    = "response"
 const val kArgName   = "name"
@@ -169,6 +176,14 @@ class EventListener(private var channel: MethodChannel) : ISiprixModelListener {
     argsMap[kRegState] = regState.value
     argsMap[kResponse] = response
     channel.invokeMethod(kOnAccountRegState, argsMap)
+  }
+
+  override fun onSubscriptionState(subscrId: Int, state: SubscrData.SubscrState, response: String?) {
+    val argsMap = HashMap<String, Any?> ()
+    argsMap[kArgSubscrId] = subscrId
+    argsMap[kSubscrState] = state.value
+    argsMap[kResponse] = response
+    channel.invokeMethod(kOnSubscriptionState, argsMap)
   }
 
   override fun onNetworkState(name: String?, state: SiprixCore.NetworkState?) {
@@ -630,6 +645,9 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
 
       kMethodMixerSwitchToCall ->   handleMixerSwitchToCall(args, result)
       kMethodMixerMakeConference -> handleMixerMakeConference(args, result)
+
+      kMethodSubscriptionAdd ->      handleSubscriptionAdd(args, result)
+      kMethodSubscriptionDelete ->   handleSubscriptionDelete(args, result)
 
       kMethodDvcSetForegroundMode->  handleDvcSetForegroundMode(args, result)
       kMethodDvcIsForegroundMode->   handleDvcIsForegroundMode(args, result)
@@ -1135,6 +1153,49 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
     val err = core!!.mixerMakeConference()
     sendResult(err, result)
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////
+  //Siprix subscriptions
+
+  private fun handleSubscriptionAdd(args : HashMap<String, Any?>, result: MethodChannel.Result) {
+    //Get arguments from map
+    val subscrData = SubscrData()
+
+    val toExt : String? = args["extension"] as? String
+    if(toExt != null) { subscrData.setExtension(toExt); }
+
+    val fromAccId : Int? = args[kArgAccId] as? Int
+    if(fromAccId != null) { subscrData.setAccountId(fromAccId); }
+
+    val expireTime : Int? = args["expireTime"] as? Int
+    if(expireTime != null) { subscrData.setExpireTime(expireTime); }
+
+    val mimeSubType : String? = args["mimeSubType"] as? String
+    if(mimeSubType != null) { subscrData.setMimeSubtype(mimeSubType); }
+
+    val eventType : String? = args["eventType"] as? String
+    if(eventType != null) { subscrData.setEventType(eventType); }
+
+    val subscrIdArg = SiprixCore.IdOutArg()
+    val err = core!!.subscrCreate(subscrData, subscrIdArg)
+    if(err == kErrorCodeEOK) {
+      result.success(subscrIdArg.value)
+    }else{
+      result.error(err.toString(), core!!.getErrText(err), null)
+    }
+  }
+
+  private fun handleSubscriptionDelete(args : HashMap<String, Any?>, result: MethodChannel.Result) {
+    val subscrId : Int? = args[kArgSubscrId] as? Int
+
+    if(subscrId != null) {
+      val err = core!!.subscrDestroy(subscrId)
+      sendResult(err, result)
+    }else{
+      sendBadArguments(result)
+    }
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////////////////
   //Siprix Devices methods implementation

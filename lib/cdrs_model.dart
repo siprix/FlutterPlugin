@@ -119,9 +119,10 @@ class CdrsModel extends ChangeNotifier {
   bool loadFromJson(String cdrsJsonStr) {
     try {
       if(cdrsJsonStr.isEmpty) return false;
-      final parsedList = (jsonDecode(cdrsJsonStr) as List).cast<Map<String, dynamic>>();
       
       _cdrItems.clear();
+
+      final List<dynamic> parsedList = jsonDecode(cdrsJsonStr);
       for (var parsedCdr in parsedList) {
         _cdrItems.add(CdrModel.fromJson(parsedCdr));
       }

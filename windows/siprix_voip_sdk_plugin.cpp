@@ -56,6 +56,9 @@ const char kMethodCallBye[]             = "Call_Bye";
 const char kMethodMixerSwitchToCall[]   = "Mixer_SwitchToCall";
 const char kMethodMixerMakeConference[] = "Mixer_MakeConference";
 
+const char kMethodSubscriptionAdd[]     = "Subscription_Add";
+const char kMethodSubscriptionDelete[]  = "Subscription_Delete";
+
 const char kMethodDvcGetPlayoutNumber[] = "Dvc_GetPlayoutDevices";
 const char kMethodDvcGetRecordNumber[]  = "Dvc_GetRecordingDevices";
 const char kMethodDvcGetVideoNumber[]   = "Dvc_GetVideoDevices";
@@ -75,6 +78,7 @@ const char kOnTrialModeNotif[]   = "OnTrialModeNotif";
 const char kOnDevicesChanged[]   = "OnDevicesChanged";
 
 const char kOnAccountRegState[]  = "OnAccountRegState";
+const char kOnSubscriptionState[]= "OnSubscriptionState";
 const char kOnNetworkState[]     = "OnNetworkState";
 const char kOnPlayerState[]      = "OnPlayerState";
 const char kOnRingerState[]      = "OnRingerState";
@@ -106,10 +110,12 @@ const char kArgToExt[]      = "toExt";
   
 const char kArgAccId[]    = "accId";
 const char kArgPlayerId[] = "playerId";
+const char kArgSubscrId[] = "subscrId";
 const char kRegState[]    = "regState";
 const char kHoldState[]   = "holdState";
 const char kNetState[]    = "netState";
 const char kPlayerState[] = "playerState";
+const char kSubscrState[] = "subscrState";
 
 const char kResponse[]    = "response";
 const char kArgName[]  = "name";
@@ -191,6 +197,9 @@ void SiprixVoipSdkPlugin::buildHandlersTable()
      
      handlers_[kMethodMixerSwitchToCall]    = std::bind(&SiprixVoipSdkPlugin::handleMixerSwitchToCall,   this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodMixerMakeConference]  = std::bind(&SiprixVoipSdkPlugin::handleMixerMakeConference, this, std::placeholders::_1, std::placeholders::_2);
+
+     handlers_[kMethodSubscriptionAdd]      = std::bind(&SiprixVoipSdkPlugin::handleSubscriptionAdd,     this, std::placeholders::_1, std::placeholders::_2);
+     handlers_[kMethodSubscriptionDelete]   = std::bind(&SiprixVoipSdkPlugin::handleSubscriptionDelete,  this, std::placeholders::_1, std::placeholders::_2);
 
      handlers_[kMethodDvcGetPlayoutNumber]  = std::bind(&SiprixVoipSdkPlugin::handleDvcGetPlayoutNumber, this, std::placeholders::_1, std::placeholders::_2);
      handlers_[kMethodDvcGetRecordNumber]   = std::bind(&SiprixVoipSdkPlugin::handleDvcGetRecordNumber,  this, std::placeholders::_1, std::placeholders::_2);
@@ -774,6 +783,52 @@ void SiprixVoipSdkPlugin::handleMixerMakeConference(const flutter::EncodableMap&
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+//Siprix subscriptions
+
+void SiprixVoipSdkPlugin::handleSubscriptionAdd(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)
+{
+  Siprix::SubscrData* subscrData = Siprix::Subscr_GetDefault();
+  
+  for(const auto& val : argsMap) {
+    const std::string* valName = std::get_if<std::string>(&val.first);
+    if(!valName) continue;
+
+    const std::string* strVal = std::get_if<std::string>(&val.second);
+    if(strVal) {
+        if(valName->compare("extension")   == 0) Siprix::Subscr_SetExtension(subscrData, strVal->c_str());
+        if(valName->compare("mimeSubType") == 0) Siprix::Subscr_SetMimeSubtype(subscrData, strVal->c_str());
+        if(valName->compare("eventType")   == 0) Siprix::Subscr_SetEventType(subscrData, strVal->c_str());
+        continue;
+    }
+
+    const int32_t* intVal = std::get_if<int32_t>(&val.second);
+    if(intVal) {
+      if(valName->compare(kArgAccId)    == 0)   Siprix::Subscr_SetAccountId(subscrData,  *intVal);
+      if(valName->compare("expireTime") == 0)   Siprix::Subscr_SetExpireTime(subscrData, *intVal);
+      continue;
+    }
+  }//for
+
+  Siprix::SubscriptionId subscrId=0;
+  const Siprix::ErrorCode err = Siprix::Subscription_Create(module_, subscrData, &subscrId);
+  if(err == Siprix::EOK){
+    result->Success(flutter::EncodableValue(static_cast<int32_t>(subscrId)));
+  }else{
+    result->Error(std::to_string(err), std::string(Siprix::GetErrorText(err)));
+  }
+}
+
+void SiprixVoipSdkPlugin::handleSubscriptionDelete(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)
+{
+    bool bFound;
+    Siprix::SubscriptionId subscrId = parseValue<int32_t>(kArgSubscrId, argsMap, bFound);
+    if (!bFound) { sendBadArgResult(result); return; }
+
+    const Siprix::ErrorCode err = Siprix::Subscription_Destroy(module_, subscrId);
+    sendResult(err, result);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 //Siprix Devices methods implementation
 
 void SiprixVoipSdkPlugin::handleDvcGetPlayoutNumber(const flutter::EncodableMap& argsMap, MethodResultEncValPtr& result)
@@ -1024,6 +1079,17 @@ void SiprixVoipSdkPlugin::OnAccountRegState(Siprix::AccountId accId, Siprix::Reg
     argsMap[flutter::EncodableValue(kResponse)] = flutter::EncodableValue(response);
 
     channel_->InvokeMethod(kOnAccountRegState,
+       std::make_unique<flutter::EncodableValue>(std::move(argsMap)));
+}
+
+void SiprixVoipSdkPlugin::OnSubscriptionState(Siprix::SubscriptionId subscrId, Siprix::SubscriptionState state, const char* response)
+{
+    flutter::EncodableMap argsMap;
+    argsMap[flutter::EncodableValue(kArgSubscrId)] = flutter::EncodableValue(static_cast<int32_t>(subscrId));
+    argsMap[flutter::EncodableValue(kSubscrState)] = flutter::EncodableValue(static_cast<int32_t>(state));
+    argsMap[flutter::EncodableValue(kResponse)]    = flutter::EncodableValue(response);
+
+    channel_->InvokeMethod(kOnSubscriptionState,
        std::make_unique<flutter::EncodableValue>(std::move(argsMap)));
 }
 

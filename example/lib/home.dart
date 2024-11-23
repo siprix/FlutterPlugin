@@ -6,6 +6,7 @@ import 'package:siprix_voip_sdk/calls_model.dart';
 import 'package:siprix_voip_sdk/network_model.dart';
 import 'package:siprix_voip_sdk/logs_model.dart';
 
+import 'subscr_list.dart';
 import 'accounts_list.dart';
 import 'settings.dart';
 import 'calls_list.dart';
@@ -50,6 +51,7 @@ class _HomePageState extends State<HomePage> {
         body: PageView(controller: _pageController, children: const [
           AccountsListPage(),
           CallsListPage(),
+          SubscrListPage(),
           LogsPage()
         ]),
         bottomSheet: _networkLostIndicator(),
@@ -57,6 +59,7 @@ class _HomePageState extends State<HomePage> {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.widgets), label: 'Accounts'),
             BottomNavigationBarItem(icon: Icon(Icons.phone_in_talk),label: 'Calls'),
+            BottomNavigationBarItem(icon: Icon(Icons.hub), label: 'BLF'),
             BottomNavigationBarItem(icon: Icon(Icons.text_snippet), label: 'Logs'),
           ],
           currentIndex: _selectedPageIndex,

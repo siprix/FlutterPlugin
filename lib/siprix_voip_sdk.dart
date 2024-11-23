@@ -4,6 +4,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'subscriptions_model.dart';
 import 'accounts_model.dart';
 import 'network_model.dart';
 import 'calls_model.dart';
@@ -34,6 +35,28 @@ class AccRegStateArg {
   }
 }
 
+class SubscriptionStateArg {
+  int subscrId=0;
+  SubscriptionState state=SubscriptionState.created;
+  String response="";
+
+  bool fromMap(Map<dynamic, dynamic> argsMap) {
+    int argsCounter=0;
+    int stateVal=0;
+    argsMap.forEach((key, value) {
+      if((key == SiprixVoipSdk._kArgSubscrId)&&(value is int)) { subscrId = value; argsCounter+=1; } else
+      if((key == SiprixVoipSdk._kSubscrState)&&(value is int)) { stateVal = value; argsCounter+=1; } else
+      if((key == SiprixVoipSdk._kResponse)&&(value is String)) { response = value; argsCounter+=1; }
+    });
+
+    switch (stateVal) {
+      case SiprixVoipSdk.kSubscrStateCreated:   state = SubscriptionState.created;
+      case SiprixVoipSdk.kSubscrStateUpdated:   state = SubscriptionState.updated;
+      case SiprixVoipSdk.kSubscrStateDestroyed: state = SubscriptionState.destroyed;
+    }
+    return (argsCounter==3);
+  }
+}
 
 class NetworkStateArg {  
   String name="";
@@ -241,6 +264,11 @@ class AccStateListener {
   void Function(int accId, RegState state, String response)? regStateChanged;
 }
 
+class SubscrStateListener {
+  SubscrStateListener({this.subscrStateChanged});
+  void Function(int subscrId, SubscriptionState state, String response)? subscrStateChanged;
+}
+
 class NetStateListener {
   NetStateListener({this.networkStateChanged});  
   void Function(String name, NetState state)? networkStateChanged;
@@ -281,6 +309,7 @@ abstract interface class ILogsModel {
 
 abstract interface class IAccountsModel {
   String getUri(int accId);
+  int getAccId(String uri);
   bool hasSecureMedia(int accId);
 }
 
@@ -310,6 +339,10 @@ class SiprixVoipSdk extends PlatformInterface
   static const int kRegStateSuccess = 0;
   static const int kRegStateFailed  = 1;
   static const int kRegStateRemoved = 2;
+
+  static const int kSubscrStateCreated = 0;
+  static const int kSubscrStateUpdated = 1;
+  static const int kSubscrStateDestroyed = 2;
 
   static const int kNetStateLost     = 0;
   static const int kNetStateRestored = 1;
@@ -344,6 +377,7 @@ class SiprixVoipSdk extends PlatformInterface
 
   static const int eOK = 0;
   static const int eDuplicateAccount=-1021;
+  static const int eSubscrAlreadyExist=-1083;
   
   static const int kLocalVideoCallId=0;
   
@@ -381,6 +415,9 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kMethodMixerSwitchToCall   = 'Mixer_SwitchToCall';
   static const String _kMethodMixerMakeConference = 'Mixer_MakeConference';
 
+  static const String _kMethodSubscriptionAdd     = 'Subscription_Add';
+  static const String _kMethodSubscriptionDelete  = 'Subscription_Delete';
+  
   static const String _kMethodDvcSetForegroundMode= 'Dvc_SetForegroundMode';
   static const String _kMethodDvcIsForegroundMode=  'Dvc_IsForegroundMode';
   static const String _kMethodDvcGetPlayoutNumber = 'Dvc_GetPlayoutDevices';
@@ -402,6 +439,7 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kOnDevicesChanged   = 'OnDevicesChanged';
   
   static const String _kOnAccountRegState  = 'OnAccountRegState';
+  static const String _kOnSubscriptionState= 'OnSubscriptionState';
   static const String _kOnNetworkState     = 'OnNetworkState';
   static const String _kOnPlayerState      = 'OnPlayerState';
 
@@ -429,12 +467,14 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kArgToCallId   = 'toCallId';
   static const String _kArgToExt      = 'toExt';
   static const String _kArgAccId      = 'accId';
-  static const String _kArgPlayerId   = "playerId";
+  static const String _kArgPlayerId   = 'playerId';
+  static const String _kArgSubscrId   = 'subscrId';
   static const String _kRegState      = 'regState'; 
   static const String _kHoldState     = 'holdState';
   static const String _kNetState      = 'netState';
   static const String _kPlayerState   = "playerState";
-    static const String _kResponse  = 'response';
+  static const String _kSubscrState   = "subscrState";
+  static const String _kResponse  = 'response';
   static const String _kArgName   = 'name';
   static const String _kArgTone   = 'tone';
   static const String _kFrom      = 'from';
@@ -453,6 +493,7 @@ class SiprixVoipSdk extends PlatformInterface
   final _methodChannel = const MethodChannel(_kChannelName);
   NetStateListener? netListener;
   AccStateListener? accListener;
+  SubscrStateListener? subscrListener;
   CallStateListener? callListener;
   DevicesStateListener? dvcListener;
   TrialModeListener? trialListener;
@@ -621,6 +662,19 @@ class SiprixVoipSdk extends PlatformInterface
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////
+  //Siprix subscriptions
+
+  Future<int?> addSubscription(SubscriptionModel newSubscription) {
+    return _methodChannel.invokeMethod<int>(_kMethodSubscriptionAdd,
+      newSubscription.toJson());
+  }
+
+  Future<void> deleteSubscription(int subscriptionId) {
+    return _methodChannel.invokeMethod<void>(_kMethodSubscriptionDelete,
+      {_kArgSubscrId:subscriptionId} );
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////
   //Siprix Devices methods implementation
 
   Future<int?> getPlayoutDevices() {
@@ -698,7 +752,7 @@ class SiprixVoipSdk extends PlatformInterface
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////
-  //Android specific implmentation
+  //Android specific implementation
 
   Future<void>? setForegroundMode(bool enabled) {    
     if(Platform.isAndroid) {
@@ -728,6 +782,7 @@ class SiprixVoipSdk extends PlatformInterface
     Map<dynamic, dynamic> argsMap = methodCall.arguments as Map<dynamic, dynamic>;
     switch(methodCall.method) {
       case _kOnAccountRegState  : onAccountRegState(argsMap);  break;
+      case _kOnSubscriptionState: onSubscriptionState(argsMap);break;
       case _kOnNetworkState     : onNetworkState(argsMap);     break;
       case _kOnPlayerState      : onPlayerState(argsMap);      break;
 
@@ -751,6 +806,13 @@ class SiprixVoipSdk extends PlatformInterface
     AccRegStateArg arg = AccRegStateArg();
     if(arg.fromMap(argsMap)) {
       accListener?.regStateChanged?.call(arg.accId, arg.regState, arg.response);
+    }
+  }
+
+  void onSubscriptionState(Map<dynamic, dynamic> argsMap) {
+    SubscriptionStateArg arg = SubscriptionStateArg();
+    if(arg.fromMap(argsMap)) {
+      subscrListener?.subscrStateChanged?.call(arg.subscrId, arg.state, arg.response);
     }
   }
 

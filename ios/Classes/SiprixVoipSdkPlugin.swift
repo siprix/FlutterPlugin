@@ -42,6 +42,9 @@ private let kMethodCallBye              = "Call_Bye"
 private let kMethodMixerSwitchToCall   = "Mixer_SwitchToCall"
 private let kMethodMixerMakeConference = "Mixer_MakeConference"
 
+private let kMethodSubscriptionAdd     = "Subscription_Add"
+private let kMethodSubscriptionDelete  = "Subscription_Delete"
+
 private let kMethodDvcGetPlayoutNumber = "Dvc_GetPlayoutDevices"
 private let kMethodDvcGetRecordNumber  = "Dvc_GetRecordingDevices"
 private let kMethodDvcGetVideoNumber   = "Dvc_GetVideoDevices"
@@ -60,6 +63,7 @@ private let kMethodVideoRendererDispose = "Video_RendererDispose"
 private let kOnTrialModeNotif   = "OnTrialModeNotif"
 private let kOnDevicesChanged   = "OnDevicesChanged"
 private let kOnAccountRegState  = "OnAccountRegState"
+private let kOnSubscriptionState = "OnSubscriptionState"
 private let kOnNetworkState     = "OnNetworkState"
 private let kOnPlayerState      = "OnPlayerState"
 private let kOnRingerState      = "OnRingerState"
@@ -90,9 +94,11 @@ private let kArgToExt      = "toExt"
 
 private let kArgAccId    = "accId"
 private let kArgPlayerId = "playerId"
+private let kArgSubscrId = "subscrId"
 private let kRegState    = "regState"
 private let kHoldState   = "holdState"
 private let kPlayerState = "playerState"
+private let kSubscrState = "subscrState"
 private let kNetState    = "netState"
 private let kResponse    = "response"
 
@@ -140,6 +146,14 @@ class SiprixEventHandler : NSObject, SiprixEventDelegate {
         argsMap[kRegState] = regState.rawValue
         argsMap[kResponse] = response
         _channel.invokeMethod(kOnAccountRegState, arguments: argsMap)
+    }
+    
+    public func onSubscriptionState(_ subscrId: Int, subscrState: SubscrState, response: String) {
+        var argsMap = [String:Any]()
+        argsMap[kArgSubscrId] = subscrId
+        argsMap[kSubscrState] = subscrState.rawValue
+        argsMap[kResponse] = response
+        _channel.invokeMethod(kOnSubscriptionState, arguments: argsMap)
     }
     
     public func onNetworkState(_ name: String, netState: NetworkState) {
@@ -477,6 +491,9 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
             case kMethodMixerSwitchToCall :   handleMixerSwitchToCall(argsMap!, result:result)
             case kMethodMixerMakeConference : handleMixerMakeConference(argsMap!, result:result)
     
+            case kMethodSubscriptionAdd    :   handleSubscriptionAdd(argsMap!, result:result)
+            case kMethodSubscriptionDelete :   handleSubscriptionDelete(argsMap!, result:result)
+
             case kMethodDvcGetPlayoutNumber:   handleDvcGetPlayoutNumber(argsMap!, result:result)
             case kMethodDvcGetRecordNumber :   handleDvcGetRecordNumber(argsMap!, result:result)
             case kMethodDvcGetVideoNumber  :   handleDvcGetVideoNumber(argsMap!, result:result)
@@ -950,6 +967,47 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
     func handleMixerMakeConference(_ args : ArgsMap, result: @escaping FlutterResult) {
         let err = _siprixModule.mixerMakeConference()
         sendResult(err, result:result)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    //Siprix subscriptions
+
+    func handleSubscriptionAdd(_ args : ArgsMap, result: @escaping FlutterResult) {
+        //Get arguments from map
+        let subscrData = SiprixSubscrData()
+        
+        let toExt = args["extension"] as? String
+        if(toExt != nil) { subscrData.toExt = toExt! }
+        
+        let fromAccId = args[kArgAccId] as? Int
+        if(fromAccId != nil) { subscrData.fromAccId = Int32(fromAccId!) }
+
+        let expireTime = args["expireTime"] as? Int
+        if(expireTime != nil) { subscrData.expireTime = NSNumber(value:expireTime!) }
+        
+        let mimeSubType = args["mimeSubType"] as? String
+        if(mimeSubType != nil) { subscrData.mimeSubtype = mimeSubType! }
+
+        let eventType = args["eventType"] as? String
+        if(eventType != nil) { subscrData.eventType = eventType! }
+     
+        let err = _siprixModule.subscrCreate(subscrData)
+        if(err == kErrorCodeEOK){
+            result(subscrData.mySubscrId)
+        }else{
+            result(FlutterError(code: String(err), message: _siprixModule.getErrorText(err), details: nil))
+        }
+    }
+
+    func handleSubscriptionDelete(_ args : ArgsMap, result: @escaping FlutterResult) {
+        let subscrId = args[kArgSubscrId] as? Int
+
+        if(subscrId != nil) {
+            let err = _siprixModule.subscrDestroy(Int32(subscrId!))
+            sendResult(err, result:result)
+        }else{
+            sendBadArguments(result:result)
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////

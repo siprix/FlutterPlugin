@@ -180,7 +180,7 @@ enum RegState { success, failed, removed, inProgress}
 ////////////////////////////////////////////////////////////////////////////////////////
 //Account model
 
-class AccountModel {  
+class AccountModel {
   AccountModel({this.sipServer="", this.sipExtension="", this.sipPassword="", this.expireTime});
   int      myAccId=0;
   RegState regState=RegState.inProgress;
@@ -320,6 +320,12 @@ class AccountsModel extends ChangeNotifier implements IAccountsModel {
   void setSelectedAccountByUri(String uri) {
     int index = _accounts.indexWhere((a) => a.uri==uri);
     if(index != -1) _selectAccount(index);
+  }
+
+  @override
+  int getAccId(String uri) {
+    int index = _accounts.indexWhere((a) => a.uri==uri);
+    return (index != -1) ? _accounts[index].myAccId : 0;
   }
 
   @override
@@ -486,7 +492,7 @@ class AccountsModel extends ChangeNotifier implements IAccountsModel {
   }
 
  
-  bool loadFromJson(String accJsonStr) {
+  Future<bool> loadFromJson(String accJsonStr) async {
     try {
       if(accJsonStr.isEmpty) return false;
 
@@ -498,7 +504,7 @@ class AccountsModel extends ChangeNotifier implements IAccountsModel {
       if(map.containsKey('accList')) {
         final parsedList = map['accList'];
         for (var parsedAcc in parsedList) {
-          addAccount(AccountModel.fromJson(parsedAcc), saveChanges:false);
+          await addAccount(AccountModel.fromJson(parsedAcc), saveChanges:false);
         }
         return parsedList.isNotEmpty;
       }
