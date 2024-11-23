@@ -322,6 +322,7 @@ EXPORT
 - (int)accountRegister:(int)accId expireTime:(int)expireTime;
 - (int)accountUnRegister:(int)accId;
 - (int)accountDelete:(int)accId;
+- (NSString * _Nonnull)accountGenInstId;
 
 - (int)callInvite:(SiprixDestData* _Nonnull)destData;
 - (int)callReject:(int)callId statusCode:(int)statusCode;
