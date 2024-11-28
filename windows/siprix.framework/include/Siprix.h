@@ -448,7 +448,7 @@ EXPORT void     Vdo_SetWidth(VideoData* vdo, int width);
 EXPORT SubscrData* Subscr_GetBLF();
 EXPORT SubscrData* Subscr_GetDefault();
 EXPORT void     Subscr_SetExtension(SubscrData* sub, const char* extension);
-EXPORT void     Subscr_SetAccountId(SubscrData* dest, AccountId accId);
+EXPORT void     Subscr_SetAccountId(SubscrData* sub, AccountId accId);
 EXPORT void     Subscr_SetMimeSubtype(SubscrData* sub, const char* subtype);
 EXPORT void     Subscr_SetEventType(SubscrData* sub, const char* type);
 EXPORT void     Subscr_SetExpireTime(SubscrData* sub, uint32_t expireTime);
