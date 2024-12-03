@@ -117,19 +117,25 @@ Manual: [docs.siprix-voip.com](https://docs.siprix-voip.com)
 ## Screenshots
 
 <a href="https://docs.siprix-voip.com/screenshots/Flutter_Accounts.png"  title="Accounts list Android">
-<img src="https://docs.siprix-voip.com/screenshots/Flutter_Accounts_Mini.png" width="50"></a>|
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_Accounts_Mini.png" width="50"></a>
 <a href="https://docs.siprix-voip.com/screenshots/Flutter_CallAdd.png"  title="Add call Android">
-<img src="https://docs.siprix-voip.com/screenshots/Flutter_CallAdd_Mini.png" width="50"></a>|
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_CallAdd_Mini.png" width="50"></a>
 <a href="https://docs.siprix-voip.com/screenshots/Flutter_Calls.png"  title="Call in progress Android">
-<img src="https://docs.siprix-voip.com/screenshots/Flutter_Calls_Mini.png" width="50"></a>|
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_Calls_Mini.png" width="50"></a>
 <a href="https://docs.siprix-voip.com/screenshots/Flutter_CallsDtmf.png"  title="Call in progress DTMF Android">
-<img src="https://docs.siprix-voip.com/screenshots/Flutter_CallsDtmf_Mini.png" width="50"></a>|
-<a href="https://docs.siprix-voip.com/screenshots/Flutter_Logs.PNG"  title="Logs Android">
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_CallsDtmf_Mini.png" width="50"></a>
+<a href="https://docs.siprix-voip.com/screenshots/Flutter_BLF.png"  title="BLF subscription Android">
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_BLF_Mini.png" width="50"></a>
+<a href="https://docs.siprix-voip.com/screenshots/Flutter_Logs.png"  title="Logs Android">
 <img src="https://docs.siprix-voip.com/screenshots/Flutter_Logs_Mini.png" width="50"></a>
 
 <a href="https://docs.siprix-voip.com/screenshots/Flutter_Accounts_Win.png"  title="Accounts list Windows">
-<img src="https://docs.siprix-voip.com/screenshots/Flutter_Accounts_Win_Mini.png" width="50"></a>|
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_Accounts_Win_Mini.png" width="50"></a>
 <a href="https://docs.siprix-voip.com/screenshots/Flutter_Calls_Win.png"  title="Call in progress Windows">
-<img src="https://docs.siprix-voip.com/screenshots/Flutter_Calls_Win_Mini.png" width="50"></a>|
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_Calls_Win_Mini.png" width="50"></a>
 <a href="https://docs.siprix-voip.com/screenshots/Flutter_CallsDtmf_Win.png"  title="Call in progress DTMF Windows">
 <img src="https://docs.siprix-voip.com/screenshots/Flutter_CallsDtmf_Win_Mini.png" width="50"></a>
+<a href="https://docs.siprix-voip.com/screenshots/Flutter_BLF_Win.png"  title="BLF subscription Windows">
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_BLF_Win_Mini.png" width="50"></a>
+<a href="https://docs.siprix-voip.com/screenshots/Flutter_Logs_Win.png"  title="Logs Windows">
+<img src="https://docs.siprix-voip.com/screenshots/Flutter_Logs_Win_Mini.png" width="50"></a>
