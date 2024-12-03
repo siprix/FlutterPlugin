@@ -423,6 +423,7 @@ EXPORT void     Ini_SetTlsVerifyServer(IniData* ini, bool tlsVerifyServer);
 EXPORT void     Ini_SetSingleCallMode(IniData* ini, bool singleCallMode);
 EXPORT void     Ini_SetRtpStartPort(IniData* ini, uint16_t rtpStartPort);
 EXPORT void     Ini_SetHomeFolder(IniData* ini, const char* homeFolder);
+EXPORT void     Ini_SetBrandName(IniData* ini, const char* brandName);
 EXPORT void     Ini_AddDnsServer(IniData* ini, const char* dns);
 
 ////////////////////////////////////////////////////////////////////////////

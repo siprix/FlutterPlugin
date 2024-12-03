@@ -6,15 +6,15 @@
 	<dict>
 		<key>Headers/Siprix.h</key>
 		<data>
-		Or+JKvDXI+9yhYlUJSknN4WsKxo=
+		40NOw0WTDa5bWV0XuqkH6MEl4bY=
 		</data>
 		<key>Headers/SiprixCpp.h</key>
 		<data>
-		MQuoC2KtA1i+LgCrWm7zZkmqyoM=
+		dg4AjAGo3k8ipqOdZ/ZJxPlSRMc=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		KAeV1VYfRQoKSEd/Khm0qkTUpDo=
+		a5W/xqemR77YIzPGqcMPebl+2uM=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -27,14 +27,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			lYAgi0U+f1FsVbM+YDMDTGhooLM5TlIRxFcsvm6YE00=
+			VO5CFg87qtksrBfkXptr2u4CnoUrAYk4sIEpb/z3f38=
 			</data>
 		</dict>
 		<key>Headers/SiprixCpp.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			0bmnqYk1+0tMxEPJD9/5XZ4rm+7MXWbW33vErj2EmWs=
+			SrXtxqeLZRfGNxG4xLvhf4vb1IiCG6Cvl/nw4S45XzY=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
