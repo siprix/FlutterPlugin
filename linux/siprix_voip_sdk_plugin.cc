@@ -339,6 +339,10 @@ static FlMethodResponse* handleModuleInitialize(FlValue* args, SiprixVoipSdkPlug
     FlValue* val = fl_value_lookup_string(args, "license");
     if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_STRING)
       Siprix::Ini_SetLicense(iniData, fl_value_get_string(val));
+
+    val = fl_value_lookup_string(args, "brandName");
+    if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_STRING)
+      Siprix::Ini_SetBrandName(iniData, fl_value_get_string(val));
     
     val = fl_value_lookup_string(args, "logLevelFile");
     if (val != nullptr && fl_value_get_type(val) == FL_VALUE_TYPE_INT)

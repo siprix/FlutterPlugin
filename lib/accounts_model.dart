@@ -13,7 +13,7 @@ import 'network_model.dart';
 
 class InitData {
   String? license;
-  String? noCameraImgPath;
+  String? brandName;
   LogLevel? logLevelFile;
   LogLevel? logLevelIde;
   int?  rtpStartPort;
@@ -25,7 +25,7 @@ class InitData {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> ret = {};
     if(license!=null)           ret['license'] = license;
-    if(noCameraImgPath!=null)   ret['noCameraImgPath'] = noCameraImgPath;    
+    if(brandName!=null)         ret['brandName'] = brandName;    
     if(logLevelFile!=null)      ret['logLevelFile'] = logLevelFile!.id;
     if(logLevelIde!=null)       ret['logLevelIde']  = logLevelIde!.id;
     if(rtpStartPort!=null)      ret['rtpStartPort'] = rtpStartPort;

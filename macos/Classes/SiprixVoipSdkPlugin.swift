@@ -461,6 +461,9 @@ public class SiprixVoipSdkPlugin: NSObject, FlutterPlugin {
         
         let license = args["license"] as? String
         if(license != nil) { iniData.license = license }
+
+        let brandName = args["brandName"] as? String
+        if(brandName != nil) { iniData.brandName = brandName }
         
         let logLevelFile = args["logLevelFile"] as? Int
         if(logLevelFile != nil) { iniData.logLevelFile = NSNumber(value: logLevelFile!) }

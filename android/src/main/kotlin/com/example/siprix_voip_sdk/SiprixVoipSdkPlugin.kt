@@ -716,6 +716,9 @@ class SiprixVoipSdkPlugin: FlutterPlugin,
 
     val license : String? = args["license"] as? String
     if(license != null) { iniData.setLicense(license) }
+  
+    val brandName : String? = args["brandName"] as? String
+    if(brandName != null) { iniData.setBrandName(brandName) }
 
     val logLevelFile : Int? = args["logLevelFile"] as? Int
     if(logLevelFile != null) { iniData.setLogLevelFile(IniData.LogLevel.fromInt(logLevelFile)); }

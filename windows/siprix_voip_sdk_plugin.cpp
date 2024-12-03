@@ -333,7 +333,8 @@ void SiprixVoipSdkPlugin::handleModuleInitialize(const flutter::EncodableMap& ar
 
         const std::string* strVal = std::get_if<std::string>(&val.second);
         if(strVal) {
-            if(valName->compare("license")   == 0)       Ini_SetLicense(iniData,         strVal->c_str());
+            if(valName->compare("license")   == 0)   Siprix::Ini_SetLicense(iniData,      strVal->c_str());
+            if(valName->compare("brandName") == 0)   Siprix::Ini_SetBrandName(iniData,    strVal->c_str());
             continue;
         }
 

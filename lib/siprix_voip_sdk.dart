@@ -436,7 +436,7 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kMethodVideoRendererSetSrc  = 'Video_RendererSetSrc';  
   static const String _kMethodVideoRendererDispose = 'Video_RendererDispose';
 
-  static const String _kOnTrialModeNotif   = "OnTrialModeNotif";
+  static const String _kOnTrialModeNotif   = 'OnTrialModeNotif';
   static const String _kOnDevicesChanged   = 'OnDevicesChanged';
   
   static const String _kOnAccountRegState  = 'OnAccountRegState';
@@ -450,8 +450,8 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kOnCallIncoming     = 'OnCallIncoming';
   static const String _kOnCallAcceptNotif  = 'OnCallAcceptNotif';  
   static const String _kOnCallDtmfReceived = 'OnCallDtmfReceived';
-  static const String _kOnCallTransferred  = "OnCallTransferred";
-  static const String _kOnCallRedirected   = "OnCallRedirected";
+  static const String _kOnCallTransferred  = 'OnCallTransferred';
+  static const String _kOnCallRedirected   = 'OnCallRedirected';
   static const String _kOnCallSwitched     = 'OnCallSwitched';
   static const String _kOnCallHeld         = 'OnCallHeld';
 
@@ -473,8 +473,8 @@ class SiprixVoipSdk extends PlatformInterface
   static const String _kRegState      = 'regState'; 
   static const String _kHoldState     = 'holdState';
   static const String _kNetState      = 'netState';
-  static const String _kPlayerState   = "playerState";
-  static const String _kSubscrState   = "subscrState";
+  static const String _kPlayerState   = 'playerState';
+  static const String _kSubscrState   = 'subscrState';
   static const String _kResponse  = 'response';
   static const String _kArgName   = 'name';
   static const String _kArgTone   = 'tone';
@@ -499,20 +499,20 @@ class SiprixVoipSdk extends PlatformInterface
   DevicesStateListener? dvcListener;
   TrialModeListener? trialListener;
 
-  
   ////////////////////////////////////////////////////////////////////////////////////////
   //Siprix module methods implementation
 
   void initialize(InitData iniData, ILogsModel? logsModel) async {
     _methodChannel.setMethodCallHandler(_eventsHandler);
+    String brand = iniData.brandName ?? "Siprix";
     try {
       await _methodChannel.invokeMethod<void>(_kMethodModuleInitialize, iniData.toMap());
       String verStr = await version() ?? "???";
       //int verCode = await versionCode() ?? 0;
-      logsModel?.print('Siprix module initialized successfully');
+      logsModel?.print('$brand module initialized successfully');
       logsModel?.print('Version: $verStr');
     } on PlatformException catch (err) {
-      logsModel?.print('Can\'t initialize Siprix module Err: ${err.code} ${err.message}');
+      logsModel?.print('Can\'t initialize $brand module Err: ${err.code} ${err.message}');
     }
   }
 
@@ -536,7 +536,6 @@ class SiprixVoipSdk extends PlatformInterface
   Future<int?> versionCode() async {
     return _methodChannel.invokeMethod<int>(_kMethodModuleVersionCode, {});
   } 
-
 
   ////////////////////////////////////////////////////////////////////////////////////////
   //Siprix Account methods implementation
